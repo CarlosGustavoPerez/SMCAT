@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Search, Filter, Star, CheckCircle, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import smcatLogo from '../logos/smcat.png';
+import smcatLogo from './logos/SMCAT.png';
 
 // Componente de Login
 const LoginScreen = ({ onLogin }) => {
