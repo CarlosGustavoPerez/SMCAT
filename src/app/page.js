@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
-import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Search, Filter, Star, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Filter, Star } from 'lucide-react';
 import Image from 'next/image';
 import smcatLogo from './logos/SMCAT.png';
+import Chart from 'chart.js/auto'; // Import Chart.js
 
 // Componente de Login
 const LoginScreen = ({ onLogin }) => {
@@ -16,7 +17,7 @@ const LoginScreen = ({ onLogin }) => {
           <Image
             src={smcatLogo}
             alt="SMCAT Logo"
-            height={64}
+            height={128}
             className="mx-auto mb-2"
           />
           <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica.</p>
@@ -87,7 +88,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <div className="flex items-center space-x-2 text-gray-600">
           <Calendar className="h-5 w-5" />
-          <span>Hoy, 27 de Mayo 2024</span>
+          <span>Hoy, {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
         </div>
       </div>
 
@@ -366,7 +367,7 @@ const EvaluationForm = () => {
   );
 };
 
-// Componente de Reportes (actualizado)
+// Componente de Reportes (actualizado con Chart.js)
 const Reports = () => {
   const [filters, setFilters] = useState({
     dateFrom: '',
@@ -413,6 +414,77 @@ const Reports = () => {
     { operator: 'Carlos López', avgScore: ((3+4+3)/3).toFixed(1) }
   ];
 
+  // Referencia al canvas para Chart.js
+  const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      // Destruir el gráfico anterior si existe
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+
+      // Crear el gráfico de barras
+      chartInstanceRef.current = new Chart(chartRef.current, {
+        type: 'bar',
+        data: {
+          labels: chartData.map(item => item.operator),
+          datasets: [{
+            label: 'Promedio de Puntuaciones',
+            data: chartData.map(item => item.avgScore),
+            backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6'], // Azul, Verde, Púrpura
+            borderColor: ['#1D4ED8', '#059669', '#6D28D9'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+              title: {
+                display: true,
+                text: 'Puntuación (0-5)',
+                font: { size: 14 }
+              },
+              ticks: {
+                stepSize: 1
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Operador',
+                font: { size: 14 }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false // Ocultar leyenda ya que solo hay un dataset
+            },
+            tooltip: {
+              enabled: true,
+              callbacks: {
+                label: (context) => `${context.raw}/5`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Limpiar el gráfico al desmontar el componente
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, [chartData]);
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold text-gray-800">Reportes Detallados</h1>
@@ -454,20 +526,6 @@ const Reports = () => {
               <option value="carlos-lopez">Carlos López</option>
             </select>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Campaña</label>
-            <select
-              value={filters.campaign}
-              onChange={(e) => setFilters({...filters, campaign: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Todas</option>
-              <option value="ventas-inbound">Ventas Inbound</option>
-              <option value="atencion-cliente">Atención al Cliente</option>
-              <option value="soporte-tecnico">Soporte Técnico</option>
-            </select>
-          </div>
         </div>
         
         <div className="flex justify-end mt-4">
@@ -478,20 +536,11 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Gráfico de Barras */}
+      {/* Gráfico de Barras con Chart.js */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Promedio de Puntuaciones por Operador</h2>
-        <div className="h-64 flex items-end space-x-4">
-          {chartData.map((item, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center">
-              <div 
-                className="w-full bg-blue-500 rounded-t-lg hover:bg-blue-600 transition-colors"
-                style={{ height: `${item.avgScore * 15}px` }}
-              />
-              <p className="mt-2 text-sm font-medium">{item.operator}</p>
-              <p className="text-xs text-gray-500">{item.avgScore}/5</p>
-            </div>
-          ))}
+        <div className="h-64">
+          <canvas ref={chartRef} className="w-full h-full"></canvas>
         </div>
       </div>
 
@@ -580,7 +629,7 @@ const SMCATApp = () => {
           <Image
             src={smcatLogo}
             alt="SMCAT Logo"
-            height={48}
+            height={64}
             className="mx-auto mb-2"
           />
         </div>
