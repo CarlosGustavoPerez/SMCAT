@@ -19,7 +19,7 @@ const LoginScreen = ({ onLogin }) => {
             height={64}
             className="mx-auto mb-2"
           />
-          <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica</p>
+          <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica.</p>
         </div>
         
         <div className="space-y-6">
