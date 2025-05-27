@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Search, Filter, Star, CheckCircle, AlertCircle } from 'lucide-react';
 
