@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Search, Filter, Star, CheckCircle, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import smcatLogo from '@/app/logos/smcat.png';
+import dialsysLogo from '@/app/logos/dialsys.png';
 
 // Componente de Login
 const LoginScreen = ({ onLogin }) => {
@@ -11,7 +14,12 @@ const LoginScreen = ({ onLogin }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">SMCAT</h1>
+          <Image
+            src={smcatLogo}
+            alt="SMCAT Logo"
+            height={64}
+            className="mx-auto mb-2"
+          />
           <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica</p>
         </div>
         
@@ -570,8 +578,12 @@ const SMCATApp = () => {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800">SMCAT</h1>
-          <p className="text-sm text-gray-600">Sistema de Monitoreo</p>
+          <Image
+            src={smcatLogo}
+            alt="SMCAT Logo"
+            height={48}
+            className="mx-auto mb-2"
+          />
         </div>
         
         <nav className="mt-6">
