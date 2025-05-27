@@ -12,7 +12,7 @@ const LoginScreen = ({ onLogin }) => {
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">SMCAT</h1>
-          <p className="text-gray-600">Sistema de Monitoreo de Call Center</p>
+          <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica</p>
         </div>
         
         <div className="space-y-6">
@@ -359,7 +359,7 @@ const EvaluationForm = () => {
   );
 };
 
-// Componente de Reportes
+// Componente de Reportes (actualizado)
 const Reports = () => {
   const [filters, setFilters] = useState({
     dateFrom: '',
@@ -368,12 +368,11 @@ const Reports = () => {
     campaign: ''
   });
 
+  // Datos de ejemplo para la tabla
   const reportData = [
     { 
       operator: 'Juan Pérez', 
       date: '15/05/2025', 
-      time: '14:30',
-      duration: '03:45',
       attitudeScore: 4, 
       structureScore: 3, 
       protocolScore: 5, 
@@ -383,8 +382,6 @@ const Reports = () => {
     { 
       operator: 'María González', 
       date: '15/05/2025', 
-      time: '15:15',
-      duration: '02:30',
       attitudeScore: 5, 
       structureScore: 4, 
       protocolScore: 5, 
@@ -394,38 +391,24 @@ const Reports = () => {
     { 
       operator: 'Carlos López', 
       date: '14/05/2025', 
-      time: '16:45',
-      duration: '04:12',
       attitudeScore: 3, 
       structureScore: 4, 
       protocolScore: 3, 
       observations: 'Mejorar saludo inicial',
       campaign: 'Soporte Técnico'
-    },
-    { 
-      operator: 'Ana Martínez', 
-      date: '14/05/2025', 
-      time: '17:00',
-      duration: '03:18',
-      attitudeScore: 5, 
-      structureScore: 5, 
-      protocolScore: 4, 
-      observations: 'Muy profesional y empática',
-      campaign: 'Retención'
     }
   ];
 
   // Datos para el gráfico de barras (promedio por operador)
   const chartData = [
-    { operator: 'Juan Pérez', avgScore: 4.0 },
-    { operator: 'María González', avgScore: 4.7 },
-    { operator: 'Carlos López', avgScore: 3.3 },
-    { operator: 'Ana Martínez', avgScore: 4.7 }
+    { operator: 'Juan Pérez', avgScore: ((4+3+5)/3).toFixed(1) },
+    { operator: 'María González', avgScore: ((5+4+5)/3).toFixed(1) },
+    { operator: 'Carlos López', avgScore: ((3+4+3)/3).toFixed(1) }
   ];
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Reportes y Análisis</h1>
+      <h1 className="text-3xl font-bold text-gray-800">Reportes Detallados</h1>
 
       {/* Filtros */}
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -437,7 +420,7 @@ const Reports = () => {
               type="date"
               value={filters.dateFrom}
               onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
           </div>
           
@@ -447,7 +430,7 @@ const Reports = () => {
               type="date"
               value={filters.dateTo}
               onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
           </div>
           
@@ -456,13 +439,12 @@ const Reports = () => {
             <select
               value={filters.operator}
               onChange={(e) => setFilters({...filters, operator: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">Todos</option>
               <option value="juan-perez">Juan Pérez</option>
               <option value="maria-gonzalez">María González</option>
               <option value="carlos-lopez">Carlos López</option>
-              <option value="ana-martinez">Ana Martínez</option>
             </select>
           </div>
 
@@ -471,73 +453,80 @@ const Reports = () => {
             <select
               value={filters.campaign}
               onChange={(e) => setFilters({...filters, campaign: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">Todas</option>
               <option value="ventas-inbound">Ventas Inbound</option>
               <option value="atencion-cliente">Atención al Cliente</option>
               <option value="soporte-tecnico">Soporte Técnico</option>
-              <option value="retencion">Retención</option>
             </select>
           </div>
         </div>
         
-        <div className="flex justify-end">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex items-center">
-            <Search className="h-4 w-4 mr-2" />
-            Filtrar
+        <div className="flex justify-end mt-4">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+            <Filter className="h-4 w-4 mr-2" />
+            Aplicar Filtros
           </button>
         </div>
       </div>
 
-      {/* Gráfico simulado */}
+      {/* Gráfico de Barras */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Tendencia de Evaluaciones</h2>
-        <div className="h-64 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-          <div className="text-center">
-            <BarChart3 className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-            <p className="text-gray-600">Gráfico de tendencias</p>
-            <p className="text-sm text-gray-500">Aquí se mostraría un gráfico interactivo</p>
-          </div>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Promedio de Puntuaciones por Operador</h2>
+        <div className="h-64 flex items-end space-x-4">
+          {chartData.map((item, index) => (
+            <div key={index} className="flex-1 flex flex-col items-center">
+              <div 
+                className="w-full bg-blue-500 rounded-t-lg hover:bg-blue-600 transition-colors"
+                style={{ height: `${item.avgScore * 15}px` }}
+              />
+              <p className="mt-2 text-sm font-medium">{item.operator}</p>
+              <p className="text-xs text-gray-500">{item.avgScore}/5</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Tabla de datos */}
+      {/* Tabla de Evaluaciones */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Resumen por Agente</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Detalle de Evaluaciones</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Agente</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Evaluaciones</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Promedio</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Tendencia</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Operador</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Actitud</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estructura</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Protocolos</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Observaciones</th>
               </tr>
             </thead>
             <tbody>
               {reportData.map((row, index) => (
                 <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">{row.agent}</td>
-                  <td className="py-3 px-4">{row.evaluations}</td>
+                  <td className="py-3 px-4">{row.operator}</td>
+                  <td className="py-3 px-4">{row.date}</td>
                   <td className="py-3 px-4">
-                    <span className="font-semibold text-blue-600">{row.avgScore}</span>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span>{row.attitudeScore}</span>
+                    </div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`font-semibold ${row.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                      {row.trend}
-                    </span>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span>{row.structureScore}</span>
+                    </div>
                   </td>
                   <td className="py-3 px-4">
-                    {row.avgScore >= 8.5 ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    ) : row.avgScore >= 7.5 ? (
-                      <AlertCircle className="h-5 w-5 text-yellow-500" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-red-500" />
-                    )}
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span>{row.protocolScore}</span>
+                    </div>
                   </td>
+                  <td className="py-3 px-4 text-sm text-gray-600">{row.observations}</td>
                 </tr>
               ))}
             </tbody>
