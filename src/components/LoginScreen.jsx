@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import smcatLogo from './logos/SMCAT.png';
+import smcatLogo from '../app/logos/SMCAT.png';
 
 const LoginScreen = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
