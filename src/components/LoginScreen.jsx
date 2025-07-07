@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import smcatLogo from '../app/logos/SMCAT.png';
+import Image from 'next/image';
 
 const LoginScreen = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
