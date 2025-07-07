@@ -42,17 +42,14 @@ const LoginScreen = ({ onLogin }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="p-6 border-b border-gray-200">
-                    <Image
-                      src={smcatLogo}
-                      alt="SMCAT Logo"
-                      height={64}
-                      className="mx-auto mb-2"
-                    />
-                  </div>
-          <p className="text-gray-600">Ingrese sus credenciales</p>
+          <Image
+            src={smcatLogo}
+            alt="SMCAT Logo"
+            height={128}
+            className="mx-auto mb-2"
+          />
+          <p className="text-gray-600">Sistema de Monitoreo de Calidad de Atención Telefónica.</p>
         </div>
-
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
