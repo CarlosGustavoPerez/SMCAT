@@ -76,7 +76,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
       actitud: attitude,
       estructura: callStructure,
       protocolos: protocolCompliance,
-      observaciones,
+      observaciones: observations,
       idCampaña: campaign,
     };
     try {
