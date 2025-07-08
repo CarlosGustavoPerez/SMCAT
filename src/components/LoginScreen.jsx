@@ -1,32 +1,41 @@
 import React, { useState } from 'react';
 import smcatLogo from '../app/logos/SMCAT.png';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
+import { login } from '@/lib/services/authServices';
 
 const LoginScreen = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    // try {
+    //   const res = await fetch('/api/auth/login', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       nombreUsuario: credentials.username,
+    //       contraseña: credentials.password
+    //     })
+    //   });
+
+    //   const data = await res.json();
+
+    //   if (data.success) {
+    //     onLogin(data.usuario);
+    //   } else {
+    //     toast.error(data.error);
+    //   }
+    // } catch (error) {
+    //   console.error('Error al iniciar sesión:', error);
+    //   toast.error('Error al iniciar sesión');
+    // }
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombreUsuario: credentials.username,
-          contraseña: credentials.password
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        onLogin(data.usuario);
-      } else {
-        alert(data.error);
-      }
+      const usuario = await login(credentials.username, credentials.password); // 👈 Usa el servicio
+      onLogin(usuario);
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
-      alert('Error al iniciar sesión');
+      toast.error(error.message);
     }
   };
 

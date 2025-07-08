@@ -56,55 +56,50 @@ useEffect(() => {
 }, []);
 
   const handleSubmit = async () => {
-    
-  const {
-    operator,
-    date,
-    time,
-    callDuration,
-    campaign,
-    attitude,
-    callStructure,
-    protocolCompliance,
-    observations
-  } = formData;
-
-  if (!operator || !date || !time || !callDuration || !campaign || !attitude || !callStructure || !protocolCompliance) {
-    toast.warning('⚠️ Todos los campos obligatorios deben completarse.');
-    return;
-  }
-
-  const fechaHora = `${date}T${time}:00`;
-
-  try {
-    const res = await fetch('/api/evaluacion/nueva', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        idEvaluado: operator,
-        idEvaluador: usuario.idUsuario,
-        fechaHora,
-        duracion: `00:${callDuration}`,
-        actitud: attitude,
-        estructura: callStructure,
-        protocolos: protocolCompliance,
-        observaciones: observations,
-        idCampaña: campaign
-      })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      toast.success('✅ Evaluación guardada correctamente');
-      if (onEvaluacionGuardada) onEvaluacionGuardada(); // redirige al dashboard
-    } else {
-      toast.error(`❌ ${data.error || 'Error al guardar'}`);
+    const {
+      operator,
+      date,
+      time,
+      callDuration,
+      campaign,
+      attitude,
+      callStructure,
+      protocolCompliance,
+      observations
+    } = formData;
+    if (!operator || !date || !time || !callDuration || !campaign || !attitude || !callStructure || !protocolCompliance) {
+      toast.warning('⚠️ Todos los campos obligatorios deben completarse.');
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    toast.error('❌ Error al guardar evaluación');
-  }
-};
+    const fechaHora = `${date}T${time}:00`;
+    try {
+      const res = await fetch('/api/evaluacion/nueva', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idEvaluado: operator,
+          idEvaluador: usuario.idUsuario,
+          fechaHora,
+          duracion: `00:${callDuration}`,
+          actitud: attitude,
+          estructura: callStructure,
+          protocolos: protocolCompliance,
+          observaciones: observations,
+          idCampaña: campaign
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('✅ Evaluación guardada correctamente');
+        if (onEvaluacionGuardada) onEvaluacionGuardada(); // redirige al dashboard
+      } else {
+        toast.error(`❌ ${data.error || 'Error al guardar'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('❌ Error al guardar evaluación');
+    }
+  };
 
 
   const StarRating = ({ value, onChange, label, required = true }) => (

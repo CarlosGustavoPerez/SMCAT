@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { User, Lock, BarChart3, FileText, Users, TrendingUp, Calendar, Filter, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, FileText, TrendingUp } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
 import smcatLogo from './logos/SMCAT.png';
+import { obtenerUsuarioDeSesion, guardarUsuarioEnSesion, limpiarSesion } from '@/lib/services/sessionService';
 import LoginScreen from '@/components/LoginScreen';
 import Dashboard from '@/components/DashBoard';
 import EvaluationForm from '@/components/EvaluationForms';
@@ -18,11 +19,10 @@ const SMCATApp = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuarioActual');
-    if (usuarioGuardado) {
-      setUsuarioActual(JSON.parse(usuarioGuardado));
+    const usuario = obtenerUsuarioDeSesion();
+    if (usuario) {
+      setUsuarioActual(usuario);
       setIsLoggedIn(true);
-      localStorage.setItem('usuarioActual', JSON.stringify(usuario));
     }
   }, []);
 
@@ -30,6 +30,7 @@ const SMCATApp = () => {
     return (
       <LoginScreen
         onLogin={(usuario) => {
+          guardarUsuarioEnSesion(usuario);
           setIsLoggedIn(true);
           setUsuarioActual(usuario);
         }}
@@ -100,6 +101,7 @@ const SMCATApp = () => {
         <div className="absolute bottom-6 left-6">
           <button
             onClick={() => {
+              limpiarSesion();
               setIsLoggedIn(false);
               setUsuarioActual(null);
               localStorage.removeItem('usuarioActual');
