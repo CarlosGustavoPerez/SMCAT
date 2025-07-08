@@ -2,27 +2,27 @@ import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Star, Filter } from "lucide-react";
 import Chart from "chart.js/auto"; // Import Chart.js
+import {
+  obtenerReportes,
+  obtenerOperadores,
+  obtenerReportesFiltrados,
+} from '../lib/services/reportService';
+import { calcularPromediosPorOperador } from '../utils/reportUtils';
 
 const Reports = ({ usuario }) => {
   const [reportData, setReportData] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', operator: '', campaign: '' });
   const [operadoresDisponibles, setOperadoresDisponibles] = useState([]);
-
-
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
   useEffect(() => {
-    console.log('Chart Data:', chartData);
-
     if (chartData.length === 0) return; // Evita crear gráfico si no hay datos
-
     // Destruir el gráfico anterior
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
-
     // Crear el nuevo gráfico
     chartInstanceRef.current = new Chart(chartRef.current, {
       type: 'bar',
@@ -118,58 +118,30 @@ const Reports = ({ usuario }) => {
   }, []);
 
   useEffect(() => {
-    const cargarOperadores = async () => {
+    const cargarDatosIniciales = async () => {
       try {
-        const res = await fetch('/api/reportes/operadores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rol: usuario.rol,
-            idUsuario: usuario.idUsuario
-          })
-        });
+        const evaluaciones = await obtenerReportes({ rol: usuario.rol, idUsuario: usuario.idUsuario });
+        setReportData(evaluaciones);
 
-        const data = await res.json();
+        const operadores = await obtenerOperadores({ rol: usuario.rol, idUsuario: usuario.idUsuario });
+        setOperadoresDisponibles(operadores);
 
-        if (data.success) {
-          setOperadoresDisponibles(data.operadores);
-        } else {
-          console.error('Error cargando operadores:', data.error);
-        }
-      } catch (error) {
-        console.error('Error al obtener operadores:', error);
+        setChartData(calcularPromediosPorOperador(evaluaciones));
+      } catch (err) {
+        console.error(err);
       }
     };
 
-    if (usuario) {
-      cargarOperadores();
-    }
+    if (usuario) cargarDatosIniciales();
   }, [usuario]);
 
   const aplicarFiltros = async () => {
     try {
-      const res = await fetch('/api/reportes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...filters,
-          rol: usuario.rol,
-          idUsuario: usuario.idUsuario
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setReportData(data.evaluaciones);
-
-        const promediosPorOperador = calcularPromedios(data.evaluaciones);
-        setChartData(promediosPorOperador);
-      } else {
-        console.error('Error en filtros:', data.error);
-      }
-    } catch (error) {
-      console.error('Error al aplicar filtros:', error);
+      const evaluacionesFiltradas = await obtenerReportesFiltrados({ ...filters, rol: usuario.rol, idUsuario: usuario.idUsuario });
+      setReportData(evaluacionesFiltradas);
+      setChartData(calcularPromediosPorOperador(evaluacionesFiltradas));
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -209,26 +181,26 @@ const Reports = ({ usuario }) => {
             <input
               type="date"
               value={filters.dateFrom}
-              onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
             <input
               type="date"
               value={filters.dateTo}
-              onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Operador</label>
             <select
               value={filters.operator}
-              onChange={(e) => setFilters({...filters, operator: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, operator: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">Todos</option>
@@ -244,7 +216,7 @@ const Reports = ({ usuario }) => {
 
           </div>
         </div>
-        
+
         <div className="flex justify-end mt-4">
           <button
             onClick={aplicarFiltros}
