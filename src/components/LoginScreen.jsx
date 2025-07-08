@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import smcatLogo from '../app/logos/SMCAT.png';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
-import { login } from '@/lib/services/authServices';
+import { login } from '../lib/services/authService';
 
 const LoginScreen = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
