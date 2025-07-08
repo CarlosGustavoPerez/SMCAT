@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧠 Sistema de Evaluación de Calidad de Atención Telefónica (SMCAT)
 
-## Getting Started
+Este proyecto es un sistema web desarrollado con [Next.js](https://nextjs.org) que permite a **Analistas** evaluar llamadas de **Operadores**, gestionar reportes, y visualizar métricas de desempeño, siguiendo una arquitectura en capas y aplicando patrones de diseño.
 
-First, run the development server:
+---
+
+## 📦 Tecnologías Utilizadas
+
+- **Next.js** (App Router)
+- **React.js** + **Hooks**
+- **Tailwind CSS**
+- **Chart.js** (visualización de datos)
+- **MySQL** (Base de datos)
+- **Node.js** / API Routes (`/api/`)
+- **Arquitectura en capas** y patrones como MVC, Repository, DTO
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/usuario/smcat.git
+cd smcat
+```
+
+### 2. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 3. Ejecutar en entorno de desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visitar [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 👥 Roles del Sistema
 
-## Learn More
+- **Analista**: Registra evaluaciones
+- **Operador**: Visualiza su desempeño y puede dar conformidad
+- **TeamLeader**: Supervisa resultados de su equipo
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧪 Funcionalidades Principales
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Login** con control de acceso por rol
+- **Dashboard** con métricas y evaluaciones recientes
+- **Formulario de Evaluación** con validaciones
+- **Reportes** con filtros, tabla de resultados y gráficos
+- **Persistencia** en base de datos MySQL
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📂 Estructura de Carpetas
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── api/              # Rutas API (login, evaluacion, reportes)
+│   ├── logos/            # Recursos visuales
+├── components/           # Componentes visuales reutilizables
+├── lib/
+│   ├── services/         # Lógica de acceso a datos (Repository)
+│   ├── db.js             # Conexión a la base de datos
+```
+
+---
+
+## 🧩 Patrones de Diseño Aplicados
+
+- **MVC** (Vista: React / Controlador: lógica / Modelo: servicios)
+- **Repository** (`evaluacionService.js`)
+- **Observer** (`useState`, `useEffect`)
+- **DTO** (objetos de datos transferidos al backend)
+- **Componentes Reutilizables** (e.g. `StarRating`)
+
+👉 Ver documento completo en `/docs/PatronesDiseñoAplicados.md`
+
+---
+
+## 📊 Reportes y Métricas
+
+- Visualización del promedio de puntuaciones por operador
+- Filtros por fecha, operador y campaña
+- Gráfico de barras y tabla detallada
+
+---
+
+## 🛡️ Seguridad
+
+- Validaciones en login
+- Autenticación por `nombreUsuario` y `contraseña`
+- Acceso restringido según el rol del usuario
+
+---
+
+## 📄 Licencia
+
+Este proyecto es parte de un Trabajo Práctico de la materia **Ingeniería de Software** y se encuentra bajo una licencia académica.
+
+---
+
+## 🙌 Autor
+
+**Carlos Gustavo Pérez**  
