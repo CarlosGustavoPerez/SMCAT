@@ -9,22 +9,22 @@ import {
 } from '@/lib/services/evaluacionService';
 
 const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
-    console.log('Usuario logueado:', usuario);
-    const [teamLeader, setTeamLeader] = useState('');
-    const [campanias, setCampanias] = useState([]); 
-    const [operadores, setOperadores] = useState([]);
+  console.log('Usuario logueado:', usuario);
+  const [teamLeader, setTeamLeader] = useState('');
+  const [campanias, setCampanias] = useState([]);
+  const [operadores, setOperadores] = useState([]);
 
   const [formData, setFormData] = useState({
-    operador: '',
-    fecha: '',
-    hora: '',
-    duracionLlamada: '',
-    campania: '',
+    operator: '',
+    date: '',
+    time: '',
+    callDuration: '',
+    campaign: '',
     callType: '',
-    actitud: '',
-    estructuraLlamada: '',
-    protocolos: '',
-    observaciones: ''
+    attitude: '',
+    callStructure: '',
+    protocolCompliance: '',
+    observations: ''
   });
   useEffect(() => {
     const fetchData = async () => {
@@ -40,50 +40,45 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
         toast.error('Error al cargar operadores o campañas');
       }
     };
-
     fetchData();
   }, []);
   const handleSubmit = async () => {
     const {
-      operador,
-      fecha,
-      hora,
-      duracionLlamada,
-      campania,
-      actitud,
-      estructuraLlamada,
-      protocolos,
-      observaciones,
+      operator,
+      date,
+      time,
+      callDuration,
+      campaign,
+      attitude,
+      callStructure,
+      protocolCompliance,
+      observations,
     } = formData;
-
     if (
-      !operador ||
-      !fecha ||
-      !hora ||
-      !duracionLlamada ||
-      !campania ||
-      !actitud ||
-      !estructuraLlamada ||
-      !protocolos
+      !operator ||
+      !date ||
+      !time ||
+      !callDuration ||
+      !campaign ||
+      !attitude ||
+      !callStructure ||
+      !protocolCompliance
     ) {
       toast.warning('⚠️ Todos los campos obligatorios deben completarse.');
       return;
     }
-
-    const fechaHora = `${fecha}T${hora}:00`;
-
+    const fechaHora = `${date}T${time}:00`;
     const evaluacion = {
-      idEvaluado: operador,
+      idEvaluado: operator,
       idEvaluador: usuario.idUsuario,
       fechaHora,
-      duracion: `00:${duracionLlamada}`,
-      actitud: actitud,
-      estructura: estructuraLlamada,
-      protocolos: protocolos,
+      duracion: `00:${callDuration}`,
+      actitud: attitude,
+      estructura: callStructure,
+      protocolos: protocolCompliance,
       observaciones,
-      idCampaña: campania,
+      idCampaña: campaign,
     };
-
     try {
       await guardarEvaluacion(evaluacion);
       toast.success('✅ Evaluación guardada correctamente');
@@ -93,9 +88,9 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
       toast.error(`❌ ${err.message}`);
     }
   };
-  const handleoperadorChange = async (e) => {
+  const handleOperatorChange = async (e) => {
     const selectedId = e.target.value;
-    setFormData((prev) => ({ ...prev, operador: selectedId }));
+    setFormData((prev) => ({ ...prev, operator: selectedId }));
     if (selectedId) {
       try {
         const leader = await obtenerTeamLeader(selectedId);
@@ -107,29 +102,18 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
       setTeamLeader('');
     }
   };
-  const handleChangeFecha = (e) => {
-    setFormData((prev) => ({ ...prev, fecha: e.target.value }));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-  const handleChangeHora = (e) => {
-    setFormData((prev) => ({ ...prev, hora: e.target.value }));
-  };
-  const handleChangeDuracionLlamada = (e) => {
-    setFormData((prev) => ({ ...prev, duracionLlamada: e.target.value }));
-  };
-  const handleChangeCampania = (e) => {
-    setFormData((prev) => ({ ...prev, campania: e.target.value }));
-  };
-  const handleChangeActitud = (e) => {
-    setFormData((prev) => ({ ...prev, actitud: e.target.value }));
-  };
-  const handleChangeEstructuraLlamada = (e) => {
-    setFormData((prev) => ({ ...prev, estructuraLlamada: e.target.value }));
-  };
-  const handleChangeProtocolos = (e) => {
-    setFormData((prev) => ({ ...prev, protocolos: e.target.value }));
-  };
-  const handleChangeObservaciones = (e) => {
-    setFormData((prev) => ({ ...prev, observaciones: e.target.value }));
+  const handleStarChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value
+    }));
   };
   const StarRating = ({ value, onChange, label, required = true }) => (
     <div className="space-y-2">
@@ -154,7 +138,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Nueva Evaluación</h1>
-      
+
       <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -162,79 +146,81 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
               Operador <span className="text-red-500">*</span>
             </label>
             <select
-                value={formData.operador}
-                onChange={handleoperadorChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                >
-                <option value="">Seleccionar operador</option>
-                {operadores.map(op => (
-                    <option key={op.id} value={op.id}>{op.nombreCompleto}</option>
-                ))}
-                </select>
+              value={formData.operator}
+              onChange={handleOperatorChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Seleccionar operador</option>
+              {operadores.map(op => (
+                <option key={op.id} value={op.id}>{op.nombreCompleto}</option>
+              ))}
+            </select>
           </div>
           <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                Team Leader
-                </label>
-                <input
-                  type="text"
-                  value={teamLeader}
-                  disabled
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700"
-                />
-            </div>
-            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Team Leader
+            </label>
+            <input
+              type="text"
+              value={teamLeader}
+              disabled
+              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Campaña <span className="text-red-500">*</span>
             </label>
             <select
-              value={formData.campania}
-              onChange={handleChangeCampania}
+              value={formData.campaign}
+              onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
-              >
+            >
               <option value="">Seleccionar campaña</option>
               {campanias.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
             </select>
           </div>
-           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={formData.fecha}
-                onChange={handleChangeFecha}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Fecha <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Hora del Monitoreo <span className="text-red-500">*</span>
             </label>
             <input
               type="time"
-              value={formData.hora}
-              onChange={handleChangeHora}
+              name="time"
+              value={formData.time}
+              onChange={handleInputChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
-          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Duración de Llamada (MM:SS) <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              value={formData.duracionLlamada}
-              onChange={handleChangeDuracionLlamada}
+              name="callDuration"
+              value={formData.callDuration}
+              onChange={handleInputChange}
               placeholder="ej: 03:45"
               pattern="[0-9]{2}:[0-9]{2}"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -242,43 +228,37 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
             />
           </div>
         </div>
-
-        
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StarRating
-            value={formData.actitud}
-            onChange={handleChangeActitud}
+            value={formData.attitude}
+            onChange={(val) => handleStarChange('attitude', val)}
             label="Puntuación Actitud"
-            required={true}
+            required
           />
-          
           <StarRating
-            value={formData.estructuraLlamada}
-            onChange={handleChangeEstructuraLlamada}
+            value={formData.callStructure}
+            onChange={(val) => handleStarChange('callStructure', val)}
             label="Puntuación Estructura"
-            required={true}
+            required
           />
-          
           <StarRating
-            value={formData.protocolos}
-            onChange={handleChangeProtocolos}
+            value={formData.protocolCompliance}
+            onChange={(val) => handleStarChange('protocolCompliance', val)}
             label="Puntuación Protocolos"
-            required={true}
+            required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
           <textarea
-            value={formData.observaciones}
-            onChange={handleChangeObservaciones}
+            name="observations"
+            value={formData.observations}
+            onChange={handleInputChange}
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Ejemplo: Falta claridad en el cierre de la llamada..."
           />
         </div>
-
         <div className="flex justify-end space-x-4">
           <button
             type="button"
