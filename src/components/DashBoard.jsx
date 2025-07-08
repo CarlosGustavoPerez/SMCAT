@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, ThumbsUp, ThumbsDown, TrendingUp, BarChart3,User } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { obtenerDashboard, actualizarEstadoEvaluacion } from '../lib/services/dashBoardService';
 const Dashboard = ({ usuario }) => {
   const [stats, setStats] = useState({
     evaluacionesHoy: 0,
@@ -9,71 +10,37 @@ const Dashboard = ({ usuario }) => {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
+    const cargarEvaluaciones = async () => {
       try {
-        const res = await fetch('/api/dashboard', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rol: usuario.rol,
-            idUsuario: usuario.idUsuario
-          })
+        const data = await obtenerDashboard({
+          rol: usuario.rol,
+          idUsuario: usuario.idUsuario,
         });
-        const data = await res.json();
-        if (data.success) {
-          setStats({
-            evaluacionesHoy: data.evaluacionesHoy,
-            promedioHoy: data.promedioHoy,
-            recientes: data.recientes
-          });
-        } else {
-          console.error('Error en dashboard:', data.error);
-        }
+
+        setStats(data);
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
+        toast.error(error.message);
       }
     };
 
-    fetchData();
-  }, [usuario]);
-  useEffect(() => {
     cargarEvaluaciones();
-    }, []);
+  }, [usuario]);
+  const cambiarEstado = async (idEvaluacion, nuevoEstado) => {
+    try {
+      await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado);
+      toast.success('Estado actualizado correctamente');
+      // Refrescar evaluaciones
+      const data = await obtenerDashboard({
+        rol: usuario.rol,
+        idUsuario: usuario.idUsuario,
+      });
+      setStats(data);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
-    const cargarEvaluaciones = async () => {
-        const res = await fetch('/api/dashboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            rol: usuario.rol,
-            idUsuario: usuario.idUsuario
-        })
-        });
-        const data = await res.json();
-        const evaluaciones = data.recientes;
-        console.log(evaluaciones);
-        setStats({
-            recientes: evaluaciones,
-            evaluacionesHoy: data.evaluacionesHoy,
-            promedioHoy: data.promedioHoy
-        });
-    };
-    const cambiarEstado = async (idEvaluacion, nuevoEstado) => {
-        const res = await fetch('/api/evaluacion/estado', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idEvaluacion, nuevoEstado })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            toast.success('Actualizando estado');
-            cargarEvaluaciones(); // refresca la grilla
-        } else {
-            toast.error('No se pudo actualizar el estado');
-        }
-    };
 
   return (
     <div className="p-6 space-y-6">

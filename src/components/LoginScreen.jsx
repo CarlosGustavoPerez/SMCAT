@@ -9,7 +9,7 @@ const LoginScreen = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    // try {
+   // try {
     //   const res = await fetch('/api/auth/login', {
     //     method: 'POST',
     //     headers: { 'Content-Type': 'application/json' },
