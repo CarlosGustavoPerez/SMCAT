@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Star } from 'lucide-react';
+import {
+  obtenerCampanias,
+  obtenerOperadores,
+  obtenerTeamLeader,
+  guardarEvaluacion,
+} from '@/lib/services/evaluacionService';
 
 const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
     console.log('Usuario logueado:', usuario);
@@ -9,99 +15,122 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
     const [operadores, setOperadores] = useState([]);
 
   const [formData, setFormData] = useState({
-    operator: '',
-    date: '',
-    time: '',
-    callDuration: '',
-    campaign: '',
+    operador: '',
+    fecha: '',
+    hora: '',
+    duracionLlamada: '',
+    campania: '',
     callType: '',
-    attitude: '',
-    callStructure: '',
-    protocolCompliance: '',
-    observations: ''
+    actitud: '',
+    estructuraLlamada: '',
+    protocolos: '',
+    observaciones: ''
   });
-useEffect(() => {
-  const fetchOperadores = async () => {
-    try {
-      const res = await fetch('/api/evaluacion/operadores');
-      const data = await res.json();
-      if (data.success) {
-        setOperadores(data.operadores);
-      } else {
-        alert('No se pudieron cargar los operadores');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ops, camps] = await Promise.all([
+          obtenerOperadores(),
+          obtenerCampanias()
+        ]);
+        setOperadores(ops);
+        setCampanias(camps);
+      } catch (err) {
+        console.error(err);
+        toast.error('Error al cargar operadores o campañas');
       }
-    } catch (err) {
-      console.error('Error al cargar operadores:', err);
-      alert('Error al cargar operadores');
-    }
-  };
+    };
 
-  fetchOperadores();
-  const fetchCampanias = async () => {
-    try {
-      const res = await fetch('/api/evaluacion/campanias');
-      const data = await res.json();
-      if (data.success) {
-        setCampanias(data.campanias);
-      } else {
-        alert('Error al obtener campañas');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error al obtener campañas');
-    }
-  };
-
-  fetchCampanias();
-}, []);
-
+    fetchData();
+  }, []);
   const handleSubmit = async () => {
     const {
-      operator,
-      date,
-      time,
-      callDuration,
-      campaign,
-      attitude,
-      callStructure,
-      protocolCompliance,
-      observations
+      operador,
+      fecha,
+      hora,
+      duracionLlamada,
+      campania,
+      actitud,
+      estructuraLlamada,
+      protocolos,
+      observaciones,
     } = formData;
-    if (!operator || !date || !time || !callDuration || !campaign || !attitude || !callStructure || !protocolCompliance) {
+
+    if (
+      !operador ||
+      !fecha ||
+      !hora ||
+      !duracionLlamada ||
+      !campania ||
+      !actitud ||
+      !estructuraLlamada ||
+      !protocolos
+    ) {
       toast.warning('⚠️ Todos los campos obligatorios deben completarse.');
       return;
     }
-    const fechaHora = `${date}T${time}:00`;
+
+    const fechaHora = `${fecha}T${hora}:00`;
+
+    const evaluacion = {
+      idEvaluado: operador,
+      idEvaluador: usuario.idUsuario,
+      fechaHora,
+      duracion: `00:${duracionLlamada}`,
+      actitud: actitud,
+      estructura: estructuraLlamada,
+      protocolos: protocolos,
+      observaciones,
+      idCampaña: campania,
+    };
+
     try {
-      const res = await fetch('/api/evaluacion/nueva', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          idEvaluado: operator,
-          idEvaluador: usuario.idUsuario,
-          fechaHora,
-          duracion: `00:${callDuration}`,
-          actitud: attitude,
-          estructura: callStructure,
-          protocolos: protocolCompliance,
-          observaciones: observations,
-          idCampaña: campaign
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success('✅ Evaluación guardada correctamente');
-        if (onEvaluacionGuardada) onEvaluacionGuardada(); // redirige al dashboard
-      } else {
-        toast.error(`❌ ${data.error || 'Error al guardar'}`);
-      }
+      await guardarEvaluacion(evaluacion);
+      toast.success('✅ Evaluación guardada correctamente');
+      if (onEvaluacionGuardada) onEvaluacionGuardada();
     } catch (err) {
       console.error(err);
-      toast.error('❌ Error al guardar evaluación');
+      toast.error(`❌ ${err.message}`);
     }
   };
-
-
+  const handleoperadorChange = async (e) => {
+    const selectedId = e.target.value;
+    setFormData((prev) => ({ ...prev, operador: selectedId }));
+    if (selectedId) {
+      try {
+        const leader = await obtenerTeamLeader(selectedId);
+        setTeamLeader(leader);
+      } catch (err) {
+        setTeamLeader('No asignado');
+      }
+    } else {
+      setTeamLeader('');
+    }
+  };
+  const handleChangeFecha = (e) => {
+    setFormData((prev) => ({ ...prev, fecha: e.target.value }));
+  };
+  const handleChangeHora = (e) => {
+    setFormData((prev) => ({ ...prev, hora: e.target.value }));
+  };
+  const handleChangeDuracionLlamada = (e) => {
+    setFormData((prev) => ({ ...prev, duracionLlamada: e.target.value }));
+  };
+  const handleChangeCampania = (e) => {
+    setFormData((prev) => ({ ...prev, campania: e.target.value }));
+  };
+  const handleChangeActitud = (e) => {
+    setFormData((prev) => ({ ...prev, actitud: e.target.value }));
+  };
+  const handleChangeEstructuraLlamada = (e) => {
+    setFormData((prev) => ({ ...prev, estructuraLlamada: e.target.value }));
+  };
+  const handleChangeProtocolos = (e) => {
+    setFormData((prev) => ({ ...prev, protocolos: e.target.value }));
+  };
+  const handleChangeObservaciones = (e) => {
+    setFormData((prev) => ({ ...prev, observaciones: e.target.value }));
+  };
   const StarRating = ({ value, onChange, label, required = true }) => (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">
@@ -122,7 +151,6 @@ useEffect(() => {
       </div>
     </div>
   );
-
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Nueva Evaluación</h1>
@@ -134,27 +162,8 @@ useEffect(() => {
               Operador <span className="text-red-500">*</span>
             </label>
             <select
-                value={formData.operator}
-                onChange={async (e) => {
-                    const selectedId = e.target.value;
-                    setFormData({ ...formData, operator: selectedId });
-
-                    if (selectedId) {
-                    const res = await fetch('/api/evaluacion/datos-operador', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idOperador: selectedId })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        setTeamLeader(data.teamLeader);
-                    } else {
-                        setTeamLeader('No asignado');
-                    }
-                    } else {
-                    setTeamLeader('');
-                    }
-                }}
+                value={formData.operador}
+                onChange={handleoperadorChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
                 >
@@ -169,10 +178,10 @@ useEffect(() => {
                 Team Leader
                 </label>
                 <input
-                type="text"
-                value={teamLeader}
-                disabled
-                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700"
+                  type="text"
+                  value={teamLeader}
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700"
                 />
             </div>
             <div>
@@ -180,43 +189,39 @@ useEffect(() => {
               Campaña <span className="text-red-500">*</span>
             </label>
             <select
-                value={formData.campaign}
-                onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                >
-                <option value="">Seleccionar campaña</option>
-                {campanias.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))}
-                </select>
-
+              value={formData.campania}
+              onChange={handleChangeCampania}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              >
+              <option value="">Seleccionar campaña</option>
+              {campanias.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+              ))}
+            </select>
           </div>
            </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-          
-        
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fecha <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={formData.fecha}
+                onChange={handleChangeFecha}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Hora del Monitoreo <span className="text-red-500">*</span>
             </label>
             <input
               type="time"
-              value={formData.time}
-              onChange={(e) => setFormData({...formData, time: e.target.value})}
+              value={formData.hora}
+              onChange={handleChangeHora}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -228,8 +233,8 @@ useEffect(() => {
             </label>
             <input
               type="text"
-              value={formData.callDuration}
-              onChange={(e) => setFormData({...formData, callDuration: e.target.value})}
+              value={formData.duracionLlamada}
+              onChange={handleChangeDuracionLlamada}
               placeholder="ej: 03:45"
               pattern="[0-9]{2}:[0-9]{2}"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -242,22 +247,22 @@ useEffect(() => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StarRating
-            value={formData.attitude}
-            onChange={(value) => setFormData({...formData, attitude: value})}
+            value={formData.actitud}
+            onChange={handleChangeActitud}
             label="Puntuación Actitud"
             required={true}
           />
           
           <StarRating
-            value={formData.callStructure}
-            onChange={(value) => setFormData({...formData, callStructure: value})}
+            value={formData.estructuraLlamada}
+            onChange={handleChangeEstructuraLlamada}
             label="Puntuación Estructura"
             required={true}
           />
           
           <StarRating
-            value={formData.protocolCompliance}
-            onChange={(value) => setFormData({...formData, protocolCompliance: value})}
+            value={formData.protocolos}
+            onChange={handleChangeProtocolos}
             label="Puntuación Protocolos"
             required={true}
           />
@@ -266,8 +271,8 @@ useEffect(() => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
           <textarea
-            value={formData.observations}
-            onChange={(e) => setFormData({...formData, observations: e.target.value})}
+            value={formData.observaciones}
+            onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Ejemplo: Falta claridad en el cierre de la llamada..."

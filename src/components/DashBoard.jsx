@@ -8,7 +8,6 @@ const Dashboard = ({ usuario }) => {
     promedioHoy: 0,
     recientes: []
   });
-
   useEffect(() => {
     const cargarEvaluaciones = async () => {
       try {
@@ -16,21 +15,18 @@ const Dashboard = ({ usuario }) => {
           rol: usuario.rol,
           idUsuario: usuario.idUsuario,
         });
-
         setStats(data);
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
         toast.error(error.message);
       }
     };
-
     cargarEvaluaciones();
   }, [usuario]);
   const cambiarEstado = async (idEvaluacion, nuevoEstado) => {
     try {
       await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado);
       toast.success('Estado actualizado correctamente');
-      // Refrescar evaluaciones
       const data = await obtenerDashboard({
         rol: usuario.rol,
         idUsuario: usuario.idUsuario,
@@ -40,8 +36,6 @@ const Dashboard = ({ usuario }) => {
       toast.error(error.message);
     }
   };
-
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
