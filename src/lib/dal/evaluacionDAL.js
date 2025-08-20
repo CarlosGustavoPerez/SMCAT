@@ -22,7 +22,7 @@ export const getTeamLeaderDAL = async (idOperador) => {
   return rows[0] || null;
 };
 
-export const saveEvaluacionDAL = async (evaluacion) => {
+export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado) => {
   const result = await pool.query(
     `INSERT INTO Evaluacion 
       (fechaHora, duracion, puntuacionActitud, puntuacionEstructura, puntuacionProtocolos, observaciones, idEvaluador, idEvaluado, idCampaña, estado) 

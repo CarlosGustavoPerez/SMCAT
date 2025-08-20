@@ -44,3 +44,8 @@ export const getEvaluacionesByRole = async (filtros) => {
     throw new Error('Error de base de datos');
   }
 };
+
+export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado) => {
+    const query = 'UPDATE Evaluacion SET estado = ? WHERE idEvaluacion = ?';
+    await pool.query(query, [nuevoEstado, idEvaluacion]);
+};

@@ -1,4 +1,5 @@
-import { obtenerDashboard, actualizarEstadoEvaluacion } from '../services/dashBoardService';
+import { obtenerDashboard } from '../services/dashBoardService';
+import { actualizarEstadoEvaluacion } from '../dal/dashboardDAL';
 import { DashboardStats } from '../be/DashboardStats'; // Tu entidad de negocio
 
 export const obtenerDatosDashboard = async ({ rol, idUsuario }) => {

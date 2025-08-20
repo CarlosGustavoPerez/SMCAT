@@ -36,8 +36,8 @@ const Dashboard = ({ usuario }) => {
     try {
       await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado);
       toast.success('Estado actualizado correctamente');
-      const data = await obtenerDatosDashboard({
-        rol: usuario.rol,
+      const data = await obtenerDashboard({
+        grupos: usuario.grupos,
         idUsuario: usuario.idUsuario,
       });
       setStats(data);
