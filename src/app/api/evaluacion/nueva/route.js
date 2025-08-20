@@ -1,44 +1,12 @@
-import pool from '@/lib/db';
+import { guardarNuevaEvaluacion } from '@/lib/bll/evaluacionBLL';
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const body = await request.json();
-    const {
-      idEvaluado,
-      idEvaluador,
-      fechaHora,
-      duracion,
-      actitud,
-      estructura,
-      protocolos,
-      observaciones,
-      idCampaña
-    } = body;
-
-    if (!idEvaluado || !idEvaluador || !fechaHora || !duracion || !actitud || !estructura || !protocolos || !idCampaña) {
-      return Response.json({ success: false, error: 'Faltan campos obligatorios' }, { status: 400 });
-    }
-
-    await pool.query(
-      `INSERT INTO Evaluacion 
-        (fechaHora, duracion, puntuacionActitud, puntuacionEstructura, puntuacionProtocolos, observaciones, idEvaluador, idEvaluado, idCampaña) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        fechaHora,
-        duracion,
-        actitud,
-        estructura,
-        protocolos,
-        observaciones || null,
-        idEvaluador,
-        idEvaluado,
-        idCampaña
-      ]
-    );
-
-    return Response.json({ success: true });
+    const data = await req.json();
+    await guardarNuevaEvaluacion(data);
+    return Response.json({ success: true, message: 'Evaluación guardada' });
   } catch (error) {
-    console.error('Error al guardar evaluación:', error);
-    return Response.json({ success: false, error: 'Error interno al guardar evaluación' }, { status: 500 });
+    console.error('Error en la ruta /api/evaluacion/nueva:', error);
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }

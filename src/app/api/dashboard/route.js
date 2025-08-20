@@ -1,62 +1,51 @@
-import pool from '@/lib/db';
+import { getEvaluacionesByRole } from '@/lib/dal/dashboardDAL';
 
 export async function POST(request) {
   try {
-    const { rol, idUsuario } = await request.json();
+    const { grupos, idUsuario } = await request.json();
+    let filtros = {};
 
-    let query = `
-      SELECT 
-        e.fechaHora,
-        e.duracion,
-        e.puntuacionActitud,
-        e.puntuacionEstructura,
-        e.puntuacionProtocolos,
-        e.observaciones,
-        e.estado,
-        e.idEvaluado,
-        e.idEvaluacion,
-        ue.nombre AS nombreEvaluado,
-        ue.apellido AS apellidoEvaluado
-      FROM Evaluacion e
-      JOIN Usuario ue ON ue.idUsuario = e.idEvaluado
-    `;
-
-    let params = [];
-
-    // Filtro según el rol
-    if (rol === 'Operador') {
-      query += ' WHERE ue.idUsuario = ?';
-      params.push(idUsuario);
-    } else if (rol === 'TeamLeader') {
-      query += ' WHERE ue.idTeamLeader = ?';
-      params.push(idUsuario);
+    // ✅ CORRECCIÓN: Iteramos sobre el array de grupos para aplicar los filtros
+    if (grupos && Array.isArray(grupos)) {
+      if (grupos.some(grupo => grupo.nombreGrupo === 'Operador')) {
+        console.log('Filtrando por Operador');
+        filtros.idOperador = idUsuario;
+      }
+      if (grupos.some(grupo => grupo.nombreGrupo === 'TeamLeader')) {
+        console.log('Filtrando por TeamLeader');
+        filtros.idTeamLeader = idUsuario;
+      }
+      if (grupos.some(grupo => grupo.nombreGrupo === 'Analista')) {
+        console.log('Filtrando por Analista');
+        // Los analistas ven todas las evaluaciones, por lo que no se necesita filtro de ID.
+      }
     }
-    query += ' ORDER BY e.fechaHora DESC';
 
-    const [rows] = await pool.query(query, params);
+    // Obtiene las evaluaciones basándose en los filtros dinámicos
+    const evaluacionesCompletas = await getEvaluacionesByRole(filtros);
 
-    // Obtener las 10 más recientes para mostrar en la grilla
-    const recientes = rows.slice(0, 10);
-
-    // Calcular promedio general (de todos los registros obtenidos según rol)
+    // Lógica de negocio para calcular el promedio y filtrar evaluaciones
     const promedioGeneral =
-      rows.length > 0
-        ? (
-            rows.reduce((total, ev) => {
-              const sum = ev.puntuacionActitud + ev.puntuacionEstructura + ev.puntuacionProtocolos;
-              return total + sum / 3;
-            }, 0) / rows.length
-          ).toFixed(2)
+      evaluacionesCompletas.length > 0
+        ? (evaluacionesCompletas.reduce((total, ev) => {
+            const sum = ev.puntuacionActitud + ev.puntuacionEstructura + ev.puntuacionProtocolos;
+            return total + sum / 3;
+          }, 0) / evaluacionesCompletas.length).toFixed(2)
         : 0;
+
+    // Obtiene las 10 evaluaciones más recientes
+    const evaluacionesRecientes = evaluacionesCompletas
+      .sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora))
+      .slice(0, 10);
 
     return Response.json({
       success: true,
       promedioHoy: promedioGeneral,
-      evaluacionesHoy: rows.length, // Total evaluaciones visibles al usuario
-      recientes
+      evaluacionesHoy: evaluacionesCompletas.length,
+      recientes: evaluacionesRecientes,
     });
   } catch (error) {
-    console.error('Error en dashboard:', error);
-    return Response.json({ success: false, error: 'Error interno' }, { status: 500 });
+    console.error('Error en el endpoint del dashboard:', error);
+    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
   }
 }

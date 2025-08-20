@@ -1,8 +1,8 @@
-export async function obtenerDashboard({ rol, idUsuario }) {
+export async function obtenerDashboard({ grupos, idUsuario }) {
   const res = await fetch('/api/dashboard', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rol, idUsuario }),
+    body: JSON.stringify({ grupos, idUsuario }),
   });
 
   const data = await res.json();

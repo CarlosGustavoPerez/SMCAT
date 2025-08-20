@@ -1,40 +1,33 @@
-import pool from '@/lib/db';
+import { findUserByUsername, findGroupsByUserId } from '@/lib/dal/authDAL';
+import bcrypt from 'bcryptjs';
 
+/**
+ * Maneja las solicitudes POST para el endpoint de login.
+ * @param {Request} request - El objeto de solicitud HTTP.
+ * @returns {Response} - La respuesta JSON con el resultado del login.
+ */
 export async function POST(request) {
-  try {
-    const body = await request.json();
-    console.log("BODY:", body);
-
-    const { nombreUsuario, contraseña } = body;
-
-    if (!nombreUsuario || !contraseña) {
-      console.log("Faltan datos");
-      return Response.json({ success: false, error: 'Faltan datos' }, { status: 400 });
+    try {
+        const { nombreUsuario, contraseña } = await request.json();
+        if (!nombreUsuario || !contraseña) {
+            return Response.json({ success: false, error: 'Faltan datos' }, { status: 400 });
+        }
+        const usuarioDB = await findUserByUsername(nombreUsuario);
+        if (!usuarioDB) {
+            return Response.json({ success: false, error: 'Credenciales inválidas' }, { status: 401 });
+        }
+        const isMatch = await bcrypt.compare(contraseña, usuarioDB.contraseña);
+        if (!isMatch) {
+            return Response.json({ success: false, error: 'Credenciales inválidas' }, { status: 401 });
+        }
+        // Obtener los grupos del usuario
+        const gruposUsuario = await findGroupsByUserId(usuarioDB.idUsuario);
+        // Excluir la contraseña y añadir los grupos antes de enviar la respuesta
+        const { contraseña: _, ...usuarioSinClave } = usuarioDB;
+        const usuarioConGrupos = { ...usuarioSinClave, grupos: gruposUsuario };
+        return Response.json({ success: true, usuario: usuarioConGrupos });
+    } catch (error) {
+        console.error('Error en login endpoint:', error);
+        return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
     }
-
-    const [users] = await pool.query(
-      'SELECT idUsuario, nombre, apellido, nombreUsuario, contraseña, rol FROM Usuario WHERE nombreUsuario = ?',
-      [nombreUsuario]
-    );
-
-    console.log("USERS ENCONTRADOS:", users);
-
-    if (users.length === 0) {
-      return Response.json({ success: false, error: 'Usuario no encontrado' }, { status: 404 });
-    }
-
-    const usuario = users[0];
-
-    if (contraseña !== usuario.contraseña) {
-      return Response.json({ success: false, error: 'Contraseña incorrecta' }, { status: 401 });
-    }
-
-    const { contraseña: _, ...usuarioSinClave } = usuario;
-
-    return Response.json({ success: true, usuario: usuarioSinClave });
-  } catch (error) {
-    console.error('Error en login:', error);
-    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
-  }
 }
-

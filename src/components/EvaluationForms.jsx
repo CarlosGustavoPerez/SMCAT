@@ -5,22 +5,22 @@ import {
   obtenerCampanias,
   obtenerOperadores,
   obtenerTeamLeader,
-  guardarEvaluacion,
-} from '@/lib/services/evaluacionService';
+  guardarEvaluacion, 
+} from '@/lib/services/evaluacionService'
+//import { Evaluacion } from '@/lib/be/Evaluacion';
 
 const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
-  console.log('Usuario logueado:', usuario);
   const [teamLeader, setTeamLeader] = useState('');
   const [campanias, setCampanias] = useState([]);
   const [operadores, setOperadores] = useState([]);
 
   const [formData, setFormData] = useState({
     operator: '',
+    evaluador: usuario.idUsuario,
     date: '',
     time: '',
     callDuration: '',
     campaign: '',
-    callType: '',
     attitude: '',
     callStructure: '',
     protocolCompliance: '',
@@ -31,7 +31,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
       try {
         const [ops, camps] = await Promise.all([
           obtenerOperadores(),
-          obtenerCampanias()
+          obtenerCampanias(),
         ]);
         setOperadores(ops);
         setCampanias(camps);
@@ -43,44 +43,19 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
     fetchData();
   }, []);
   const handleSubmit = async () => {
-    const {
-      operator,
-      date,
-      time,
-      callDuration,
-      campaign,
-      attitude,
-      callStructure,
-      protocolCompliance,
-      observations,
-    } = formData;
-    if (
-      !operator ||
-      !date ||
-      !time ||
-      !callDuration ||
-      !campaign ||
-      !attitude ||
-      !callStructure ||
-      !protocolCompliance
-    ) {
-      toast.warning('⚠️ Todos los campos obligatorios deben completarse.');
-      return;
-    }
-    const fechaHora = `${date}T${time}:00`;
-    const evaluacion = {
-      idEvaluado: operator,
-      idEvaluador: usuario.idUsuario,
-      fechaHora,
-      duracion: `00:${callDuration}`,
-      actitud: attitude,
-      estructura: callStructure,
-      protocolos: protocolCompliance,
-      observaciones: observations,
-      idCampaña: campaign,
-    };
     try {
-      await guardarEvaluacion(evaluacion);
+      const dataToSave = {
+        idEvaluado: formData.operator,
+        fechaHora: `${formData.date}T${formData.time}:00`,
+        duracion: formData.callDuration,
+        puntuacionActitud: formData.attitude,
+        puntuacionEstructura: formData.callStructure,
+        puntuacionProtocolos: formData.protocolCompliance,
+        observaciones: formData.observations,
+        idEvaluador: formData.evaluador,
+        idCampaña: formData.campaign,
+      };
+      await guardarEvaluacion(dataToSave);
       toast.success('✅ Evaluación guardada correctamente');
       if (onEvaluacionGuardada) onEvaluacionGuardada();
     } catch (err) {

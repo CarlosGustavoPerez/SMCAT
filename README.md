@@ -99,6 +99,16 @@ src/
 - Validaciones en login
 - Autenticación por `nombreUsuario` y `contraseña`
 - Acceso restringido según el rol del usuario
+- lfernandez: Analista123!
+- jlopez: Analista456!
+- jperez: Operador123!
+- mgonzalez: Operador456!
+- clopez: Operador789!
+- amartinez: Operador321!
+- mramirez: Lider123!
+- esuarez: Lider456!
+- yanina: Lider1234!
+- cperez: AdminCPEREZ
 
 ---
 

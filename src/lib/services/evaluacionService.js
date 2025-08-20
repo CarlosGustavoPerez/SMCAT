@@ -30,14 +30,12 @@ export async function obtenerTeamLeader(idOperador) {
 }
 
 export async function guardarEvaluacion(evaluacion) {
-  const res = await fetch('/api/evaluacion/nueva', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(evaluacion),
-  });
-  const data = await res.json();
-  if (!res.ok || !data.success) {
-    throw new Error(data.error || 'Error al guardar evaluación');
+    
+    const res = await fetch('/api/evaluacion/nueva', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(evaluacion)
+    });
+    return res.json();
   }
-  return data;
-}
+

@@ -1,4 +1,4 @@
-export async function login(nombreUsuario, contraseña) {
+export async function loginUsuario(nombreUsuario, contraseña) {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
