@@ -30,12 +30,15 @@ export async function obtenerTeamLeader(idOperador) {
 }
 
 export async function guardarEvaluacion(evaluacion) {
-    
-    const res = await fetch('/api/evaluacion/nueva', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(evaluacion)
-    });
-    return res.json();
+  const res = await fetch('/api/evaluacion/nueva', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(evaluacion)
+  });
+  const data = await res.json();
+  // Validación corregida: si la respuesta no fue exitosa o si el campo 'success' es falso, lanza un error.
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Error al guardar la evaluación');
   }
-
+  return data;
+}

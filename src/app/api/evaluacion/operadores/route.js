@@ -1,19 +1,18 @@
-import pool from '@/lib/db';
+import { obtenerOperadores } from '@/lib/bll/evaluacionBLL';
 
+// Esta ruta actúa como un punto de entrada para el frontend.
+// Su única responsabilidad es llamar a la capa BLL para obtener los datos.
 export async function GET() {
   try {
-    const [rows] = await pool.query(
-      `SELECT idUsuario, nombre, apellido FROM Usuario WHERE rol = 'Operador'`
-    );
+    // La ruta llama a la función de la BLL para obtener la lógica.
+    // La BLL se encarga de la lógica de negocio y de llamar al DAL.
+    const operadores = await obtenerOperadores();
 
-    const operadores = rows.map(op => ({
-      id: op.idUsuario,
-      nombreCompleto: `${op.nombre} ${op.apellido}`
-    }));
-
+    // Si todo es exitoso, devuelve los operadores.
     return Response.json({ success: true, operadores });
-  } catch (err) {
-    console.error('Error al obtener operadores:', err);
-    return Response.json({ success: false, error: 'Error interno' }, { status: 500 });
+  } catch (error) {
+    // Manejo de errores centralizado.
+    console.error('Error al obtener operadores:', error);
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }

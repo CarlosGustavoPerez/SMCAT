@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import smcatLogo from '../app/logos/SMCAT.png';
 import Image from 'next/image';
+import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
 import { loginUsuario } from '@/lib/services/authService';
 
@@ -9,12 +10,21 @@ const LoginScreen = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    
     try {
       const usuario = await loginUsuario(credentials.username, credentials.password);
-      onLogin(usuario);
+      
+      if (usuario) {
+        onLogin(usuario);
+      } 
+      if (usuario == null) {
+        toast.error('Credenciales inválidas');
+        setCredentials({ username: '', password: '' });
+      }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
-      toast.error(error.message);
+      toast.error('Error al iniciar sesión. Intente nuevamente.');
+      setCredentials({ username: '', password: '' });
     }
   };
 
@@ -81,7 +91,9 @@ const LoginScreen = ({ onLogin }) => {
           </button>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
+    
   );
 };
 

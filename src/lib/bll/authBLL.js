@@ -1,14 +1,35 @@
-import { login as loginService } from '../services/authService';
+import { findUserByUsername, findGroupsByUserId } from '@/lib/dal/authDAL';
 import { Usuario } from '../be/Usuario';
+import bcrypt from 'bcryptjs';
 
+/**
+ * Lógica de negocio para el inicio de sesión de un usuario.
+ * @param {string} nombreUsuario - El nombre de usuario.
+ * @param {string} contraseña - La contraseña del usuario.
+ * @returns {Promise<Usuario|null>} El objeto de usuario con sus grupos si el login es exitoso, de lo contrario null.
+ */
 export const loginUsuario = async (nombreUsuario, contraseña) => {
   if (!nombreUsuario || !contraseña) {
-    throw new Error('El usuario y la contraseña son requeridos.');
+    return null;
   }
 
-  const usuarioData = await loginService(nombreUsuario, contraseña);
+  const usuarioDB = await findUserByUsername(nombreUsuario);
+  if (!usuarioDB) {
+    return null;
+  }
+  
+  const isMatch = await bcrypt.compare(contraseña, usuarioDB.contraseña);
+  if (!isMatch) {
+    return null;
+  }
 
-  const usuario = new Usuario(usuarioData);
+  // Obtener los grupos del usuario
+  const gruposUsuario = await findGroupsByUserId(usuarioDB.idUsuario);
+  
+  // Excluir la contraseña y añadir los grupos
+  const { contraseña: _, ...usuarioSinClave } = usuarioDB;
+  const usuarioConGrupos = { ...usuarioSinClave, grupos: gruposUsuario };
+  const usuario = new Usuario(usuarioConGrupos);
 
   return usuario;
 };

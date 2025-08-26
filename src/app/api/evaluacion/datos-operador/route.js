@@ -1,29 +1,19 @@
-import pool from '@/lib/db';
+import { obtenerTeamLeader } from '@/lib/bll/evaluacionBLL';
 
+// La ruta de la API solo recibe la solicitud y llama al BLL.
 export async function POST(req) {
-  const { idOperador } = await req.json();
-
   try {
-    const [rows] = await pool.query(
-      `SELECT t.nombre AS nombreTL, t.apellido AS apellidoTL
-       FROM Usuario u
-       LEFT JOIN Usuario t ON u.idTeamLeader = t.idUsuario
-       WHERE u.idUsuario = ?`,
-      [idOperador]
-    );
-console.log();
-    if (rows.length === 0) {
-      return Response.json({ success: false, error: 'Operador no encontrado' }, { status: 404 });
-    }
+    // Extrae el idOperador del cuerpo de la solicitud.
+    const { idOperador } = await req.json();
 
-    const { nombreTL, apellidoTL } = rows[0];
+    // Llama a la función del BLL que se encarga de la lógica.
+    const teamLeader = await obtenerTeamLeader(idOperador);
 
-    return Response.json({
-      success: true,
-      teamLeader: nombreTL && apellidoTL ? `${nombreTL} ${apellidoTL}` : 'No asignado'
-    });
-  } catch (err) {
-    console.error('Error al buscar TeamLeader:', err);
-    return Response.json({ success: false, error: 'Error interno' }, { status: 500 });
+    // Devuelve la respuesta con el Team Leader obtenido.
+    return Response.json({ success: true, teamLeader });
+  } catch (error) {
+    // Manejo de errores.
+    console.error('Error al obtener Team Leader:', error);
+    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
   }
 }

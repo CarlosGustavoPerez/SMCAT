@@ -1,6 +1,7 @@
 const USER_KEY = 'usuarioActual';
 
 export const getSessionUser = () => {
+    console.log('Obteniendo usuario de la sesión...');
     try {
         const userData = localStorage.getItem(USER_KEY);
         return userData ? JSON.parse(userData) : null;

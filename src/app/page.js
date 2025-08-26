@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { BarChart3, FileText, TrendingUp, ShieldCheck } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, ShieldCheck, User, Calendar } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
 import smcatLogo from './logos/SMCAT.png';
 import { getSessionUser, saveSessionUser, clearSession } from '@/utils/sessionStorage';
@@ -18,20 +17,27 @@ const SMCATApp = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [currentView, setCurrentView] = useState('dashboard');
     const [usuarioActual, setUsuarioActual] = useState(null);
+
     const userHasPermission = (user, requiredGroups) => {
-        if (!requiredGroups || requiredGroups.length === 0) {
-            return true;
+        // Corrección: Verifica que 'user' no sea null antes de continuar.
+        if (!user || !requiredGroups || requiredGroups.length === 0) {
+            return false;
         }
         const userGroupNames = user.grupos?.map(g => g.nombreGrupo) || [];
         return requiredGroups.some(reqGroup => userGroupNames.includes(reqGroup));
     };
+
     useEffect(() => {
         const usuario = getSessionUser();
+        console.log('Usuario actual desde sesión:', usuario);
         if (usuario) {
             setUsuarioActual(usuario);
             setIsLoggedIn(true);
             const initialView = getInitialView(usuario);
             setCurrentView(initialView);
+        }
+        else{
+            
         }
     }, []);
 
@@ -62,7 +68,6 @@ const SMCATApp = () => {
     };
 
     // Menú base con los grupos requeridos.
-    // He cambiado 'visibleFor' a 'requiredGroups' para mayor claridad.
     const baseMenu = [
         { id: 'dashboard', label: 'Dashboard', icon: BarChart3, requiredGroups: ['Operador', 'Analista', 'TeamLeader'] },
         { id: 'evaluation', label: 'Nueva Evaluación', icon: FileText, requiredGroups: ['Analista'] },
@@ -70,9 +75,9 @@ const SMCATApp = () => {
         { id: 'admin', label: 'Gestión de Seguridad', icon: ShieldCheck, requiredGroups: ['Administrador'] },
     ];
 
-    // Filtra los ítems del menú usando la nueva función de utilidad
+    // Filtra los ítems del menú, verificando que usuarioActual exista.
     const menuItems = baseMenu.filter(
-        (item) => userHasPermission(usuarioActual, item.requiredGroups),
+        (item) => usuarioActual && userHasPermission(usuarioActual, item.requiredGroups),
     );
 
     const renderCurrentView = () => {
@@ -135,7 +140,32 @@ const SMCATApp = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 overflow-auto">{renderCurrentView()}</div>
+                <div className="flex-1 overflow-auto">
+                    {/* VERIFICACIÓN AGREGADA AQUÍ */}
+                    {usuarioActual && (
+                        <div className="p-2 flex justify-end items-center mb-2">
+                            <div className="flex items-center mr-3">
+                                <User className="h-5 w-5 mr-2 text-gray-500" />
+                                <span>
+                                    Hola, <span className="font-semibold">{usuarioActual.nombre}</span>
+                                </span>
+                            </div>
+                            <div className="flex items-center">
+                                <Calendar className="h-5 w-5 mr-2 text-gray-500" />
+                                <span>
+                                    Hoy,{' '}
+                                    {new Date().toLocaleDateString('es-ES', {
+                                        day: '2-digit',
+                                        month: 'long',
+                                        year: 'numeric',
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                    <hr className="border-gray-200" />
+                    {renderCurrentView()}
+                </div>
             </div>
             <ToastContainer position="top-right" autoClose={3000} />
         </>

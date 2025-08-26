@@ -22,21 +22,22 @@ export const getTeamLeaderDAL = async (idOperador) => {
   return rows[0] || null;
 };
 
-export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado) => {
+// Ahora, la función recibe el objeto de datos 'data' directamente del BLL
+export const saveEvaluacionDAL = async (data) => {
   const result = await pool.query(
     `INSERT INTO Evaluacion 
-      (fechaHora, duracion, puntuacionActitud, puntuacionEstructura, puntuacionProtocolos, observaciones, idEvaluador, idEvaluado, idCampaña, estado) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE DE REVISION')`,
+     (fechaHora, duracion, puntuacionActitud, puntuacionEstructura, puntuacionProtocolos, observaciones, idEvaluador, idEvaluado, idCampaña, estado) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE DE REVISION')`,
     [
-      evaluacion.fechaHora,
-      evaluacion.duracion,
-      evaluacion.puntuacionActitud,
-      evaluacion.puntuacionEstructura,
-      evaluacion.puntuacionProtocolos,
-      evaluacion.observaciones || null,
-      evaluacion.idEvaluador,
-      evaluacion.idEvaluado,
-      evaluacion.idCampaña,
+      data.fechaHora,
+      data.duracion,
+      data.puntuacionActitud,
+      data.puntuacionEstructura,
+      data.puntuacionProtocolos,
+      data.observaciones || null,
+      data.idEvaluador,
+      data.idEvaluado,
+      data.idCampaña,
     ]
   );
   return result;

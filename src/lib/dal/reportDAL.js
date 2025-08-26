@@ -1,11 +1,8 @@
 import pool from '@/lib/db';
 
-// Capa de Acceso a Datos (DAL) - Responsable de las interacciones con la base de datos.
-// No contiene lógica de negocio, solo ejecuta consultas SQL.
-
 /**
- * Obtiene las evaluaciones de la base de datos con los filtros aplicados.
- * @param {object} filtros - Objeto con los filtros de la consulta.
+ * Obtiene las evaluaciones de la base de datos con los filtros y permisos aplicados.
+ * @param {object} filtros - Objeto con los filtros, rol y ID del usuario.
  * @returns {Promise<Array>} Un array de objetos con las evaluaciones.
  */
 export const obtenerEvaluacionesDB = async (filtros) => {
@@ -42,16 +39,20 @@ export const obtenerEvaluacionesDB = async (filtros) => {
     params.push('%' + filtros.operator.replace('-', ' ') + '%');
   }
   if (filtros.campaign) {
-    query += ' AND c.nombre = ?';
-    params.push(filtros.campaign);
+    // La tabla de campañas no está en el JOIN por ahora, se mantendrá sin funcionalidad.
+    // Para que funcione, se necesita un JOIN a la tabla de campañas.
+    // query += ' AND c.nombre = ?';
+    // params.push(filtros.campaign);
   }
   
-  // Lógica de rol movida a la BLL para un mejor encapsulamiento
-  if (filtros.rol === 'Operador') {
-      query += ' AND ue.idUsuario = ?';
-      params.push(filtros.idUsuario);
-  } else if (filtros.rol === 'TeamLeader') {
+  // Lógica de permisos de rol aplicada directamente en la consulta
+  if (filtros.rol === 'TeamLeader') {
+      // Filtra por las evaluaciones de los operadores que dependen del Team Leader
       query += ' AND ue.idTeamLeader = ?';
+      params.push(filtros.idUsuario);
+  } else if (filtros.rol === 'Operador') {
+      // Filtra por las evaluaciones del propio operador
+      query += ' AND ue.idUsuario = ?';
       params.push(filtros.idUsuario);
   }
 
@@ -62,7 +63,7 @@ export const obtenerEvaluacionesDB = async (filtros) => {
 };
 
 /**
- * Obtiene la lista de operadores únicos de la base de datos.
+ * Obtiene la lista de operadores únicos de la base de datos, con filtros por rol.
  * @param {object} filtros - Objeto con el rol y ID del usuario para filtrar.
  * @returns {Promise<Array>} Un array de objetos con los operadores.
  */
@@ -75,13 +76,15 @@ export const obtenerOperadoresDB = async (filtros) => {
   `;
   const params = [];
 
-  // Lógica de rol movida a la BLL para un mejor encapsulamiento
-  if (filtros.rol === 'Operador') {
-    query += ' AND ue.idUsuario = ?';
-    params.push(filtros.idUsuario);
-  } else if (filtros.rol === 'TeamLeader') {
-    query += ' AND ue.idTeamLeader = ?';
-    params.push(filtros.idUsuario);
+  // Lógica de permisos de rol aplicada directamente en la consulta
+  if (filtros.rol === 'TeamLeader') {
+      // Filtra por los operadores que dependen del Team Leader
+      query += ' AND ue.idTeamLeader = ?';
+      params.push(filtros.idUsuario);
+  } else if (filtros.rol === 'Operador') {
+      // Si el usuario es un Operador, solo muestra su propio nombre en la lista
+      query += ' AND ue.idUsuario = ?';
+      params.push(filtros.idUsuario);
   }
 
   const [rows] = await pool.query(query, params);

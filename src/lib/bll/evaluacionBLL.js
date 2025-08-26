@@ -5,8 +5,7 @@ import {
   saveEvaluacionDAL,
 } from '../dal/evaluacionDAL';
 
-// Importa la entidad de negocio para mapear los datos
-import { Evaluacion } from '@/lib/be/Evaluacion';
+// La entidad de negocio 'Evaluacion' ya no se necesita aquí, ya que pasaremos el objeto de datos directamente.
 
 // BLL: Lógica de negocio para guardar una evaluación
 export const guardarNuevaEvaluacion = async (data) => {
@@ -19,29 +18,15 @@ export const guardarNuevaEvaluacion = async (data) => {
   if (!data.puntuacionEstructura) throw new Error("Seleccione Estructura");
   if (!data.puntuacionProtocolos) throw new Error("Seleccione Protocolo");
 
-  // 2. Creación de la entidad de negocio (con los datos ya validados)
-  // Se crea la entidad de negocio con los datos, sin lógica de validación
-  const nuevaEvaluacion = new Evaluacion(
-    null,
-    data.fechaHora,
-    data.duracion,
-    data.puntuacionActitud,
-    data.puntuacionEstructura,
-    data.puntuacionProtocolos,
-    data.observaciones,
-    data.idEvaluador,
-    data.idEvaluado,
-    data.idCampaña
-  );
-
-  // 3. Llamar a la DAL para guardar la entidad
-  await saveEvaluacionDAL(nuevaEvaluacion);
+  // 2. Llamar a la DAL para guardar el objeto de datos completo
+  // Pasamos el objeto 'data' directamente para evitar cualquier pérdida de valores
+  // en la entidad de negocio.
+  await saveEvaluacionDAL(data);
 };
 
 // BLL: Lógica para obtener operadores
 export const obtenerOperadores = async () => {
   const operadores = await getOperadoresDAL();
-  // Transformación de datos para la presentación
   return operadores.map(op => ({
     id: op.id,
     nombreCompleto: `${op.nombre} ${op.apellido}`

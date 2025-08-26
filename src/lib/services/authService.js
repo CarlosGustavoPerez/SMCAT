@@ -8,7 +8,7 @@ export async function loginUsuario(nombreUsuario, contraseña) {
   const data = await res.json();
 
   if (!res.ok || !data.success) {
-    throw new Error(data.error || 'Error al iniciar sesión');
+    return null; // Retornamos null en caso de fallo
   }
 
   return data.usuario;

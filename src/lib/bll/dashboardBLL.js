@@ -1,20 +1,38 @@
-import { obtenerDashboard } from '../services/dashBoardService';
-import { actualizarEstadoEvaluacion } from '../dal/dashboardDAL';
-import { DashboardStats } from '../be/DashboardStats'; // Tu entidad de negocio
+import { 
+  actualizarEstadoEvaluacion, 
+  getEvaluacionesByRole, 
+  getOperadoresDeTeamLeader, 
+  getTodosLosOperadores, 
+  getOperadoresAgrupadosPorTeamLeader, // Importar la nueva función
+} from '../dal/dashboardDAL'; 
 
-export const obtenerDatosDashboard = async ({ rol, idUsuario }) => {
-    // Lógica de negocio (aquí no hay mucha, pero podría haberla)
-    const data = await obtenerDashboard({ rol, idUsuario });
-    return new DashboardStats(data);
+export const getEvaluacionesByRoleBLL = async (filtros) => { 
+  console.log('Filtros en BLL:', filtros); // Log para depuración
+  const data = await getEvaluacionesByRole(filtros); 
+  return data; 
+}; 
+
+export const getOperadoresByTeamLeaderBLL = async (idTeamLeader) => { 
+  const operadores = await getOperadoresDeTeamLeader(idTeamLeader); 
+  return operadores; 
+}; 
+
+export const getTodosLosOperadoresBLL = async () => { 
+    const operadores = await getTodosLosOperadores(); 
+    return operadores; 
+}; 
+
+// Nueva función para Analistas
+export const getOperadoresAgrupadosPorTeamLeaderBLL = async () => {
+  const data = await getOperadoresAgrupadosPorTeamLeader();
+  return data;
 };
 
-export const cambiarEstadoDeEvaluacion = async (idEvaluacion, nuevoEstado) => {
-    // Lógica de negocio: validación del estado
-    const estadosValidos = ['CERRADA CON CONFORMIDAD', 'CERRADA SIN CONFORMIDAD'];
-    if (!estadosValidos.includes(nuevoEstado)) {
-        throw new Error('Estado inválido. No se puede actualizar.');
-    }
+export const cambiarEstadoDeEvaluacion = async (idEvaluacion, nuevoEstado) => { 
+  const estadosValidos = ['CERRADA CON CONFORMIDAD', 'CERRADA SIN CONFORMIDAD']; 
+  if (!estadosValidos.includes(nuevoEstado)) { 
+    throw new Error('Estado inválido. No se puede actualizar.'); 
+  } 
 
-    // Llama a la capa de servicios
-    await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado);
+  await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado); 
 };
