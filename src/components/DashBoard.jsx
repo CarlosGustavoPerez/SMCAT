@@ -12,7 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { obtenerDashboard, actualizarEstadoEvaluacion } from '../lib/services/dashBoardService';
+import { obtenerDashboard, actualizarEstadoEvaluacion } from '../modulos/dashboard/services/dashBoardService';
 
 const StatCard = ({ title, value, icon: Icon, color, onClick, description }) => (
   <div
@@ -247,7 +247,13 @@ const Dashboard = ({ usuario }) => {
                   <StatCard
                     key={tl.idUsuario}
                     title={`${tl.nombre} ${tl.apellido}`}
-                    value={`${(parseFloat(tl.promedio)).toFixed(2)} (${tl.llamadas} llamadas)`}
+                    value={
+    <>
+      {parseFloat(tl.promedio).toFixed(2)}
+      <br />
+      ({tl.llamadas} llamadas)
+    </>
+  }
                     icon={Users}
                     color="bg-gradient-to-br from-purple-500 to-pink-500"
                     onClick={() => handleDrillDown(tl.idUsuario, 'operadores')}
@@ -274,7 +280,7 @@ const Dashboard = ({ usuario }) => {
               <div className="flex items-center mb-6">
                 <button
                   onClick={handleDrillUp}
-                  className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4"
+                  className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4 cursor-pointer"
                 >
                   <ChevronLeft className="h-5 w-5" />
                   <span className="ml-1 text-sm font-medium">Atrás</span>
@@ -319,7 +325,7 @@ const Dashboard = ({ usuario }) => {
             <div className="flex items-center mb-6">
               <button
                 onClick={handleDrillUp}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4"
+                className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4 cursor-pointer"
               >
                 <ChevronLeft className="h-5 w-5" />
                 <span className="ml-1 text-sm font-medium">Atrás</span>
@@ -371,7 +377,7 @@ const Dashboard = ({ usuario }) => {
             <div className="flex items-center mb-6">
               <button
                 onClick={handleDrillUp}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4"
+                className="flex items-center text-gray-600 hover:text-gray-900 transition mr-4 cursor-pointer"
               >
                 <ChevronLeft className="h-5 w-5" />
                 <span className="ml-1 text-sm font-medium">Atrás</span>

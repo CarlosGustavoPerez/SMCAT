@@ -1,4 +1,4 @@
-import { guardarNuevaEvaluacion } from '@/lib/bll/evaluacionBLL';
+import { guardarNuevaEvaluacion } from '@/modulos/evaluaciones/bll/evaluacionBLL';
 
 export async function POST(req) {
   try {

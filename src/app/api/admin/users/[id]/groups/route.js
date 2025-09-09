@@ -3,7 +3,7 @@ import {
     obtenerGruposDeUsuario,
     asignarGrupoAUsuario,
     removerGrupoDeUsuario
-} from '@/lib/bll/adminBLL';
+} from '@/modulos/admin/bll/adminBLL';
 
 export async function GET(request, context) {
     try {
@@ -28,14 +28,6 @@ export async function GET(request, context) {
     }
 }
 
-/**
- * Maneja las peticiones POST para asignar un grupo a un usuario.
- * URL: /api/admin/users/[idUsuario]/groups
- * Body: { "idGrupo": 1 }
- * @param {object} request - El objeto de la petición HTTP.
- * @param {object} context - Contiene los parámetros de la URL, por ejemplo: { params: { idUsuario: '123' } }
- * @returns {Response} Un mensaje de éxito o de error.
- */
 export async function POST(request, context) {
     try {
         const { id } = context.params;
@@ -56,14 +48,6 @@ export async function POST(request, context) {
     }
 }
 
-/**
- * Maneja las peticiones DELETE para remover un grupo de un usuario.
- * URL: /api/admin/users/[idUsuario]/groups
- * Body: { "idGrupo": 1 }
- * @param {object} request - El objeto de la petición HTTP.
- * @param {object} context - Contiene los parámetros de la URL, por ejemplo: { params: { idUsuario: '123' } }
- * @returns {Response} Un mensaje de éxito o de error.
- */
 export async function DELETE(request, context) {
     try {
         const { id } = context.params;

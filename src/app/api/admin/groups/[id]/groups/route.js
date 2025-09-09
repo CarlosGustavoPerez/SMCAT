@@ -1,4 +1,4 @@
-import { obtenerGruposDeUsuario } from '@/lib/bll/adminBLL';
+import { obtenerGruposDeUsuario } from '@/modulos/admin/bll/adminBLL';
 
 export async function GET(request, { params }) {
     try {

@@ -36,7 +36,6 @@ export async function guardarEvaluacion(evaluacion) {
     body: JSON.stringify(evaluacion)
   });
   const data = await res.json();
-  // Validación corregida: si la respuesta no fue exitosa o si el campo 'success' es falso, lanza un error.
   if (!res.ok || !data.success) {
     throw new Error(data.error || 'Error al guardar la evaluación');
   }

@@ -1,4 +1,4 @@
-import { resetearClave } from '@/lib/bll/adminBLL';
+import { resetearClave } from '@/modulos/admin/bll/adminBLL';
 
 export async function PUT(request, { params }) {
     try {

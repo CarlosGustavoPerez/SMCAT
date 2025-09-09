@@ -1,8 +1,8 @@
 import {
   getEvaluacionesByRoleBLL,
   getOperadoresByTeamLeaderBLL,
-  getOperadoresAgrupadosPorTeamLeaderBLL, // Importar la nueva función
-} from '@/lib/bll/dashboardBLL';
+  getOperadoresAgrupadosPorTeamLeaderBLL,
+} from '@/modulos/dashboard/bll/dashboardBLL';
 
 export async function POST(request) {
   try {
@@ -13,8 +13,6 @@ export async function POST(request) {
     const esTeamLeader = grupos.some((grupo) => grupo.nombreGrupo === 'TeamLeader');
     const esOperador = grupos.some((grupo) => grupo.nombreGrupo === 'Operador');
 
-    // Analista: Vista inicial de Team Leaders.
-    // Esto solo ocurre si es un analista y no hay filtro de idOperador ni idTeamLeader.
     if (esAnalista && !filtro.idOperador && !filtro.idTeamLeader) {
       data = await getOperadoresAgrupadosPorTeamLeaderBLL();
       return Response.json({
@@ -22,11 +20,10 @@ export async function POST(request) {
         evaluacionesHoy: 0,
         promedioHoy: 0,
         recientes: [],
-        operadores: data, // 'operadores' aquí es un array de team leaders
+        operadores: data,
       });
     }
 
-    // Team Leader: Vista inicial con sus propios operadores.
     if (esTeamLeader && !filtro.idOperador) {
       data = await getOperadoresByTeamLeaderBLL(idUsuario);
       const operadoresConPromedioNumerico = data.map(op => ({
@@ -43,8 +40,6 @@ export async function POST(request) {
       });
     }
     
-    // Vista de operadores para analistas haciendo drill-down.
-    // Se activa cuando hay un filtro de idTeamLeader.
     if (esAnalista && filtro.idTeamLeader) {
         data = await getOperadoresByTeamLeaderBLL(filtro.idTeamLeader);
         const operadoresConPromedioNumerico = data.map(op => ({
@@ -61,8 +56,6 @@ export async function POST(request) {
         });
     }
 
-    // Caso de drill-down (Analista o Team Leader) o vista de Operador.
-    // Aquí se muestran las evaluaciones.
     if (filtro.idOperador) {
         const evaluacionesCompletas = await getEvaluacionesByRoleBLL(filtro);
         const promedioGeneral = evaluacionesCompletas.length > 0
@@ -82,7 +75,6 @@ export async function POST(request) {
         });
     }
 
-    // Operador: Vista inicial con sus propias llamadas.
     if (esOperador) {
       const evaluacionesCompletas = await getEvaluacionesByRoleBLL({ idOperador: idUsuario });
       const promedioGeneral = evaluacionesCompletas.length > 0
@@ -102,7 +94,6 @@ export async function POST(request) {
       });
     }
 
-    // Si no se cumple ninguna de las condiciones anteriores.
     return Response.json(
         { success: false, error: 'Acceso no autorizado o rol no reconocido' },
         { status: 403 }

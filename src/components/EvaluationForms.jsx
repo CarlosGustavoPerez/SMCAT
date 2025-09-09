@@ -6,8 +6,7 @@ import {
   obtenerOperadores,
   obtenerTeamLeader,
   guardarEvaluacion, 
-} from '@/lib/services/evaluacionService'
-//import { Evaluacion } from '@/lib/be/Evaluacion';
+} from '@/modulos/evaluaciones/services/evaluacionService'
 
 const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
   const [teamLeader, setTeamLeader] = useState('');

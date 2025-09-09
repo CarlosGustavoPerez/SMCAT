@@ -1,5 +1,3 @@
-// src/components/admin/AdminPanel.jsx
-
 import React, { useState } from 'react';
 import UserManagement from './UserManagement';
 import GroupManagement from './GroupManagement';

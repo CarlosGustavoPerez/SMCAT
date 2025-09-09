@@ -2,8 +2,8 @@ import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import Chart from "chart.js/auto"; // Import Chart.js
-import { obtenerReportes, obtenerOperadores } from '../lib/services/reportService';
-import { calcularPromediosPorOperador } from '../utils/reportUtils';
+import { obtenerReportes, obtenerOperadores } from '../modulos/reportes/services/reportService';
+import { calcularPromediosPorOperador } from '../lib/utils/reportUtils';
 
 const Reports = ({ usuario }) => {
   const [reportData, setReportData] = useState([]);

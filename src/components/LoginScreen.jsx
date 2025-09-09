@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import smcatLogo from '../app/logos/SMCAT.png';
+import smcatLogo from '@/app/logos/SMCAT.png';
 import Image from 'next/image';
 import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
-import { loginUsuario } from '@/lib/services/authService';
+import { loginUsuario } from '@/modulos/authentication/services/authService';
 
 const LoginScreen = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -56,7 +56,7 @@ const LoginScreen = ({ onLogin }) => {
               value={credentials.username}
               onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
               onKeyDown={handleKeyDown}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="Ingrese su usuario"
               autoFocus
             />
@@ -69,7 +69,7 @@ const LoginScreen = ({ onLogin }) => {
               value={credentials.password}
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               onKeyDown={handleKeyDown}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="Ingrese su contraseña"
             />
             <button

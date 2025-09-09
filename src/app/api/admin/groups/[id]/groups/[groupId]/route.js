@@ -1,4 +1,4 @@
-import { asignarGrupoAUsuario, removerGrupoDeUsuario } from '@/lib/bll/adminBLL';
+import { asignarGrupoAUsuario, removerGrupoDeUsuario } from '@/modulos/admin/bll/adminBLL';
 
 export async function POST(request, { params }) {
     try {

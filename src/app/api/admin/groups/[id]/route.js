@@ -1,4 +1,4 @@
-import { modificarGrupo, eliminarGrupo } from '@/lib/bll/adminBLL';
+import { modificarGrupo, eliminarGrupo } from '@/modulos/admin/bll/adminBLL';
 
 export async function PUT(request, { params }) {
     try {

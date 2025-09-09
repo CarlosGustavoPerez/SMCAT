@@ -5,7 +5,7 @@ import { BarChart3, FileText, TrendingUp, ShieldCheck, User, Calendar } from 'lu
 import { ToastContainer } from 'react-toastify';
 import Image from 'next/image';
 import smcatLogo from './logos/SMCAT.png';
-import { getSessionUser, saveSessionUser, clearSession } from '@/utils/sessionStorage';
+import { getSessionUser, saveSessionUser, clearSession } from '@/lib/utils/sessionStorage';
 import LoginScreen from '@/components/LoginScreen';
 import Dashboard from '@/components/DashBoard';
 import EvaluationForm from '@/components/EvaluationForms';
@@ -29,7 +29,6 @@ const SMCATApp = () => {
 
     useEffect(() => {
         const usuario = getSessionUser();
-        console.log('Usuario actual desde sesión:', usuario);
         if (usuario) {
             setUsuarioActual(usuario);
             setIsLoggedIn(true);
@@ -122,7 +121,7 @@ const SMCATApp = () => {
                                     currentView === item.id
                                         ? 'bg-blue-50 border-r-2 border-blue-500 text-blue-600'
                                         : 'text-gray-700'
-                                }`}
+                                } cursor-pointer` }
                             >
                                 <item.icon className="h-5 w-5 mr-3" />
                                 {item.label}

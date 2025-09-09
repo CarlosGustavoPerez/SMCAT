@@ -1,4 +1,4 @@
-import { modificarUsuario, eliminarUsuario } from '@/lib/bll/adminBLL';
+import { modificarUsuario, eliminarUsuario } from '@/modulos/admin/bll/adminBLL';
 
 export async function PUT(request, { params }) {
     try {

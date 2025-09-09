@@ -8,12 +8,8 @@ import {
     obtenerGruposDeUsuarioDB,
     asignarGrupoAUsuarioDB,
     removerGrupoDeUsuarioDB
-} from '@/lib/dal/adminDAL';
+} from '@/modulos/admin/dal/adminDAL';
 
-/**
- * Obtiene todos los usuarios y los team leaders.
- * @returns {Promise<Array>} Un array de objetos de usuario.
- */
 export const obtenerUsuarios = async () => {
     try {
         const usuarios = await obtenerUsuariosDB();
@@ -24,11 +20,6 @@ export const obtenerUsuarios = async () => {
     }
 };
 
-/**
- * Crea un nuevo usuario.
- * @param {object} usuarioData - Datos del nuevo usuario.
- * @returns {Promise<number>} El ID del nuevo usuario.
- */
 export const crearUsuario = async (usuarioData) => {
     try {
         // Validación de datos y lógica de negocio
@@ -42,12 +33,6 @@ export const crearUsuario = async (usuarioData) => {
     }
 };
 
-/**
- * Actualiza un usuario.
- * @param {number} idUsuario - El ID del usuario a actualizar.
- * @param {object} usuarioData - Datos del usuario a actualizar.
- * @returns {Promise<void>}
- */
 export const actualizarUsuario = async (idUsuario, usuarioData) => {
     try {
         await actualizarUsuarioDB(idUsuario, usuarioData);
@@ -56,11 +41,6 @@ export const actualizarUsuario = async (idUsuario, usuarioData) => {
     }
 };
 
-/**
- * Elimina un usuario.
- * @param {number} idUsuario - El ID del usuario a eliminar.
- * @returns {Promise<void>}
- */
 export const eliminarUsuario = async (idUsuario) => {
     try {
         await eliminarUsuarioDB(idUsuario);
@@ -69,10 +49,6 @@ export const eliminarUsuario = async (idUsuario) => {
     }
 };
 
-/**
- * Obtiene todos los grupos disponibles.
- * @returns {Promise<Array>} Un array de objetos de grupo.
- */
 export const obtenerGrupos = async () => {
     try {
         const grupos = await obtenerGruposDB();
@@ -82,11 +58,6 @@ export const obtenerGrupos = async () => {
     }
 };
 
-/**
- * Crea un nuevo grupo.
- * @param {object} grupoData - Datos del nuevo grupo.
- * @returns {Promise<number>} El ID del nuevo grupo.
- */
 export const agregarGrupo = async (grupoData) => {
     try {
         if (!grupoData.nombreGrupo) {
@@ -99,11 +70,6 @@ export const agregarGrupo = async (grupoData) => {
     }
 };
 
-/**
- * Obtiene los grupos de un usuario específico.
- * @param {number} idUsuario - El ID del usuario.
- * @returns {Promise<Array>} Un array de objetos de grupo.
- */
 export const obtenerGruposDeUsuario = async (idUsuario) => {
     try {
         const grupos = await obtenerGruposDeUsuarioDB(idUsuario);
@@ -113,12 +79,6 @@ export const obtenerGruposDeUsuario = async (idUsuario) => {
     }
 };
 
-/**
- * Asigna un grupo a un usuario.
- * @param {number} idUsuario - El ID del usuario.
- * @param {number} idGrupo - El ID del grupo.
- * @returns {Promise<void>}
- */
 export const asignarGrupoAUsuario = async (idUsuario, idGrupo) => {
     try {
         await asignarGrupoAUsuarioDB(idUsuario, idGrupo);
@@ -127,12 +87,6 @@ export const asignarGrupoAUsuario = async (idUsuario, idGrupo) => {
     }
 };
 
-/**
- * Remueve un grupo de un usuario.
- * @param {number} idUsuario - El ID del usuario.
- * @param {number} idGrupo - El ID del grupo.
- * @returns {Promise<void>}
- */
 export const removerGrupoDeUsuario = async (idUsuario, idGrupo) => {
     try {
         await removerGrupoDeUsuarioDB(idUsuario, idGrupo);

@@ -1,4 +1,4 @@
-import { cambiarEstadoDeEvaluacion } from '@/lib/bll/dashboardBLL';
+import { cambiarEstadoDeEvaluacion } from '@/modulos/dashboard/bll/dashboardBLL';
 
 export async function POST(request) {
   try {

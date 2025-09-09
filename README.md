@@ -62,14 +62,76 @@ Visitar [http://localhost:3000](http://localhost:3000)
 ## 📂 Estructura de Carpetas
 
 ```
-src/
-├── app/
-│   ├── api/              # Rutas API (login, evaluacion, reportes)
-│   ├── logos/            # Recursos visuales
-├── components/           # Componentes visuales reutilizables
-├── lib/
-│   ├── services/         # Lógica de acceso a datos (Repository)
-│   ├── db.js             # Conexión a la base de datos
+src
+  |__app
+  |  |__api
+  |  |  |__admin
+  |  |  |  |__groups
+  |  |  |  |  |  |__route.ts
+  |  |  |  |  |__[id]
+  |  |  |  |  |  |__route.ts
+  |  |  |  |  |  |__groups
+  |  |  |  |  |  |  |__route.ts
+  |  |  |  |  |  |  |__[groupsId]
+  |  |  |  |  |  |  |  |__route.ts
+  |  |  |__auth
+  |  |  |  |__login
+  |  |  |  |  |__route.ts
+  |  |  |__dashboard
+  |  |  |  |__route.ts
+  |  |  |__evaluacion
+  |  |  |  |__campanias
+  |  |  |  |  |__route.ts
+  |  |  |  |__datos-operador
+  |  |  |  |  |__route.ts
+  |  |  |  |__estado
+  |  |  |  |  |__route.ts
+  |  |  |  |__nueva
+  |  |  |  |  |__route.ts
+  |  |  |  |__operadores
+  |  |  |  |  |__route.ts
+  |  |  |__reportess
+  |  |  |  |__route.ts
+  |  |  |  |__operadores
+  |  |  |  |  |__route.ts
+  |  |__page.js
+  |__components
+  |  |__admin
+  |  |  |__AdminPanel.jsx
+  |  |  |__GroupManagement.jsx
+  |  |  |__UserManagement.jsx
+  |  |__DashBoard.jsx
+  |  |__EvaluationForms.jsx
+  |  |__LoginScreen.jsx
+  |  |__Reports.jsx
+  |__lib
+  |  |__db.js
+  |  |__utils
+  |  |  |__sessionStorage.js
+  |__modulos
+  |  |__admin
+  |  |  |__bll
+  |  |  |__dal
+  |  |  |__services
+  |  |__authentication
+  |  |  |__be
+  |  |  |__bll
+  |  |  |__dal
+  |  |  |__services
+  |  |__dashboard
+  |  |  |__be
+  |  |  |__bll
+  |  |  |__dal
+  |  |  |__services
+  |  |__evaluaciones
+  |  |  |__be
+  |  |  |__bll
+  |  |  |__dal
+  |  |  |__services
+  |  |__reportes
+  |  |  |__bll
+  |  |  |__dal
+  |  |  |__services
 ```
 
 ---
@@ -99,16 +161,16 @@ src/
 - Validaciones en login
 - Autenticación por `nombreUsuario` y `contraseña`
 - Acceso restringido según el rol del usuario
-- lfernandez: Analista123!
-- jlopez: Analista456!
-- jperez: Operador123!
-- mgonzalez: Operador456!
-- clopez: Operador789!
-- amartinez: Operador321!
-- mramirez: Lider123!
-- esuarez: Lider456!
-- yanina: Lider1234!
-- cperez: AdminCPEREZ
+-1 lfernandez: Analista123!
+-2 jlopez: Analista456!
+-3 jperez: Operador123!
+-4 mgonzalez: Operador456!
+-5 clopez: Operador789!
+-6 amartinez: Operador321!
+-7 mramirez: Lider123!
+-8 esuarez: Lider456!
+-9 yanina: Lider1234!
+-10 cperez: AdminCPEREZ
 
 ---
 

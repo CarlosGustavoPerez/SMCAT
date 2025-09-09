@@ -1,9 +1,7 @@
-// src/components/admin/GroupManagement.jsx
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit, Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { getGroups, addGroup, updateGroup, deleteGroup } from '@/lib/services/adminService';
+import { getGroups, addGroup, updateGroup, deleteGroup } from '@/modulos/admin/services/adminService';
 
 const GroupManagement = () => {
     const [groups, setGroups] = useState([]);

@@ -10,7 +10,6 @@ export const obtenerReportes = async ({ grupos, idUsuario, dateFrom, dateTo, ope
     return data.evaluaciones;
 };
 
-// Esta función se mantiene igual para obtener la lista de operadores
 export const obtenerOperadores = async ({ grupos, idUsuario }) => {
     const res = await fetch('/api/reportes/operadores', {
         method: 'POST',

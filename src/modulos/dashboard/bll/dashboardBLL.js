@@ -3,11 +3,11 @@ import {
   getEvaluacionesByRole, 
   getOperadoresDeTeamLeader, 
   getTodosLosOperadores, 
-  getOperadoresAgrupadosPorTeamLeader, // Importar la nueva función
+  getOperadoresAgrupadosPorTeamLeader,
 } from '../dal/dashboardDAL'; 
 
 export const getEvaluacionesByRoleBLL = async (filtros) => { 
-  console.log('Filtros en BLL:', filtros); // Log para depuración
+  console.log('Filtros en BLL:', filtros);
   const data = await getEvaluacionesByRole(filtros); 
   return data; 
 }; 
@@ -22,7 +22,6 @@ export const getTodosLosOperadoresBLL = async () => {
     return operadores; 
 }; 
 
-// Nueva función para Analistas
 export const getOperadoresAgrupadosPorTeamLeaderBLL = async () => {
   const data = await getOperadoresAgrupadosPorTeamLeader();
   return data;

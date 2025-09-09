@@ -1,5 +1,3 @@
-// src/components/admin/UserManagement.jsx
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit, Trash, RotateCcw } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -13,7 +11,7 @@ import {
     assignGroupToUser,
     removeGroupFromUser,
     getGroupsByUserId
-} from '@/lib/services/adminService';
+} from '@/modulos/admin/services/adminService';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
