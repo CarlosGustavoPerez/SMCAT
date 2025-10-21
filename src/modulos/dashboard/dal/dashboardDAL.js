@@ -136,3 +136,20 @@ export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado) => {
     const query = 'UPDATE Evaluacion SET estado = ? WHERE idEvaluacion = ?'; 
     await pool.query(query, [nuevoEstado, idEvaluacion]); 
 };
+
+export const getUmbralesDesempenoDAL = async (dbClient) => {
+    try {
+        const query = `
+            SELECT nombre_nivel, rango_min, rango_max 
+            FROM UmbralesDesempeno 
+            ORDER BY rango_min DESC
+        `;
+        const [umbrales] = await dbClient.query(query);
+        
+        // El mapeo simple se mantiene en DAL, BLL puede refinar el formato si es necesario.
+        return umbrales; 
+    } catch (error) {
+        console.error('Error en DAL al obtener umbrales:', error);
+        throw new Error('Error de DB al obtener configuración de umbrales.');
+    }
+};

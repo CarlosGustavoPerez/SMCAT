@@ -1,16 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { BarChart3, FileText, TrendingUp, ShieldCheck, User, Calendar } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, ShieldCheck, User, Calendar,CheckSquare, SearchCheck } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import Image from 'next/image';
 import smcatLogo from './logos/SMCAT.png';
 import { getSessionUser, saveSessionUser, clearSession } from '@/lib/utils/sessionStorage';
 import LoginScreen from '@/components/LoginScreen';
 import Dashboard from '@/components/DashBoard';
+import PlanMejora from '@/components/PlanMejora';
 import EvaluationForm from '@/components/EvaluationForms';
 import Reports from '@/components/Reports';
 import AdminPanel from '@/components/admin/AdminPanel';
+import AuditoriaPanel from '@/components/AuditoriaSesionesReport';
+import UmbralesPanel from '@/components/UmbralesABM';
+
+import { logoutUsuario } from '@/modulos/authentication/services/authService';
 
 // Componente Principal con Navegación
 const SMCATApp = () => {
@@ -60,7 +65,10 @@ const SMCATApp = () => {
         );
     }
     
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        if (usuarioActual && usuarioActual.idUsuario) {
+        await logoutUsuario(usuarioActual.idUsuario, usuarioActual.nombreUsuario);
+    }
         clearSession();
         setIsLoggedIn(false);
         setUsuarioActual(null);
@@ -71,7 +79,10 @@ const SMCATApp = () => {
         { id: 'dashboard', label: 'Dashboard', icon: BarChart3, requiredGroups: ['Operador', 'Analista', 'TeamLeader'] },
         { id: 'evaluation', label: 'Nueva Evaluación', icon: FileText, requiredGroups: ['Analista'] },
         { id: 'reports', label: 'Reportes', icon: TrendingUp, requiredGroups: ['Operador', 'Analista', 'TeamLeader'] },
+        { id: 'planMejora', label: 'Planes de Mejora', icon: CheckSquare, requiredGroups: ['Analista', 'TeamLeader', 'Supervisor'] }, 
         { id: 'admin', label: 'Gestión de Seguridad', icon: ShieldCheck, requiredGroups: ['Administrador'] },
+        { id: 'auditoriaSesion', label: 'Auditoría de Sesiones', icon: SearchCheck, requiredGroups: ['Administrador'] },
+        { id: 'umbralesABM', label: 'Umbrales de Desempeño', icon: TrendingUp, requiredGroups: ['Administrador'] },
     ];
 
     // Filtra los ítems del menú, verificando que usuarioActual exista.
@@ -92,8 +103,14 @@ const SMCATApp = () => {
                 );
             case 'reports':
                 return <Reports usuario={usuarioActual} />;
+            case 'planMejora':
+                return <PlanMejora usuario={usuarioActual}/>; 
             case 'admin':
                 return usuarioActual && <AdminPanel usuario={usuarioActual} />;
+            case 'auditoriaSesion':
+                return usuarioActual && <AuditoriaPanel usuario={usuarioActual} />;
+            case 'umbralesABM':
+                return usuarioActual && <UmbralesPanel usuario={usuarioActual} />;
             default:
                 return <Dashboard usuario={usuarioActual} />;
         }
@@ -145,13 +162,13 @@ const SMCATApp = () => {
                         <div className="p-2 flex justify-end items-center mb-2">
                             <div className="flex items-center mr-3">
                                 <User className="h-5 w-5 mr-2 text-gray-500" />
-                                <span>
+                                <span className="text-gray-700">
                                     Hola, <span className="font-semibold">{usuarioActual.nombre}</span>
                                 </span>
                             </div>
                             <div className="flex items-center">
                                 <Calendar className="h-5 w-5 mr-2 text-gray-500" />
-                                <span>
+                                <span  className="text-gray-700">
                                     Hoy,{' '}
                                     {new Date().toLocaleDateString('es-ES', {
                                         day: '2-digit',

@@ -2,13 +2,14 @@ import {
   getEvaluacionesByRoleBLL,
   getOperadoresByTeamLeaderBLL,
   getOperadoresAgrupadosPorTeamLeaderBLL,
+  getUmbralesBLL
 } from '@/modulos/dashboard/bll/dashboardBLL';
 
 export async function POST(request) {
   try {
     const { grupos, idUsuario, filtro } = await request.json();
     let data;
-
+    const umbrales = await getUmbralesBLL();
     const esAnalista = grupos.some((grupo) => grupo.nombreGrupo === 'Analista');
     const esTeamLeader = grupos.some((grupo) => grupo.nombreGrupo === 'TeamLeader');
     const esOperador = grupos.some((grupo) => grupo.nombreGrupo === 'Operador');
@@ -21,6 +22,7 @@ export async function POST(request) {
         promedioHoy: 0,
         recientes: [],
         operadores: data,
+        umbrales: umbrales,
       });
     }
 
@@ -37,6 +39,7 @@ export async function POST(request) {
         promedioHoy: 0,
         recientes: [],
         operadores: operadoresConPromedioNumerico,
+        umbrales: umbrales,
       });
     }
     
@@ -53,6 +56,7 @@ export async function POST(request) {
             promedioHoy: 0,
             recientes: [],
             operadores: operadoresConPromedioNumerico,
+            umbrales: umbrales,
         });
     }
 
@@ -72,6 +76,7 @@ export async function POST(request) {
           evaluacionesHoy: evaluacionesCompletas.length,
           recientes: evaluacionesRecientes,
           operadores: [],
+          umbrales: umbrales,
         });
     }
 
@@ -91,6 +96,7 @@ export async function POST(request) {
         evaluacionesHoy: evaluacionesCompletas.length,
         recientes: evaluacionesRecientes,
         operadores: [],
+        umbrales: umbrales,
       });
     }
 

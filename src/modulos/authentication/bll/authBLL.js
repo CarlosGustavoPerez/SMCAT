@@ -1,4 +1,4 @@
-import { findUserByUsername, findGroupsByUserId } from '@/modulos/authentication/dal/authDAL';
+import { findUserByUsername, findGroupsByUserId, registrarAuditoriaSesion } from '@/modulos/authentication/dal/authDAL';
 import { Usuario } from '../be/Usuario';
 import bcrypt from 'bcryptjs';
 
@@ -20,4 +20,7 @@ export const loginUsuario = async (nombreUsuario, contraseña, dbClient) => {
     const usuario = new Usuario(usuarioConGrupos);
 
     return usuario;
+};
+export const registrarEventoSesion = async (datosAuditoria, dbClient) => {
+    await registrarAuditoriaSesion(datosAuditoria, dbClient);
 };

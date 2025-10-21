@@ -122,7 +122,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
             <select
               value={formData.operator}
               onChange={handleOperatorChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
               required
             >
               <option value="">Seleccionar operador</option>
@@ -149,7 +149,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
             <select
               value={formData.campaign}
               onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
               required
             >
               <option value="">Seleccionar campaña</option>
@@ -169,7 +169,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
               name="date"
               value={formData.date}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
               required
             />
           </div>
@@ -182,7 +182,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
               name="time"
               value={formData.time}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
               required
             />
           </div>
@@ -197,7 +197,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
               onChange={handleInputChange}
               placeholder="ej: 03:45"
               pattern="[0-9]{2}:[0-9]{2}"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
               required
             />
           </div>
@@ -229,7 +229,7 @@ const EvaluationForm = ({ usuario, onEvaluacionGuardada }) => {
             value={formData.observations}
             onChange={handleInputChange}
             rows={4}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500"
             placeholder="Ejemplo: Falta claridad en el cierre de la llamada..."
           />
         </div>

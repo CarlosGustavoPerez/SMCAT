@@ -16,6 +16,7 @@ export async function obtenerDashboard({ grupos, idUsuario, filtro }) {
     promedioHoy: data.promedioHoy,
     recientes: data.recientes,
     operadores: data.operadores,
+    umbrales: data.umbrales,
   };
 }
 

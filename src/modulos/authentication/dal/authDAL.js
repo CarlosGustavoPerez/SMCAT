@@ -25,3 +25,19 @@ export const findGroupsByUserId = async (userId, dbClient) => {
         throw new Error('Error de base de datos.');
     }
 };
+export const registrarAuditoriaSesion = async (datosAuditoria, dbClient) => {
+    try {
+        const { idUsuario, nombreUsuario, tipoEvento, ipOrigen, detalle } = datosAuditoria;
+        
+        const query = `
+            INSERT INTO AuditoriaSesion (idUsuario, nombreUsuario, fechaHora, tipoEvento, ipOrigen,  detalle)
+            VALUES (?, ?, NOW(), ?, ?, ?)
+        `;
+        const params = [idUsuario, nombreUsuario, tipoEvento, ipOrigen, detalle || null];
+
+        await dbClient.query(query, params);
+        
+    } catch (error) {
+        console.error('Error FATAL en DAL al registrar auditoría de sesión:', error);
+    }
+};

@@ -9,6 +9,7 @@ import {
     asignarGrupoAUsuarioDB,
     removerGrupoDeUsuarioDB
 } from '@/modulos/admin/dal/adminDAL';
+import bcrypt from 'bcryptjs';
 
 export const obtenerUsuarios = async () => {
     try {
@@ -23,10 +24,21 @@ export const obtenerUsuarios = async () => {
 export const crearUsuario = async (usuarioData) => {
     try {
         // Validación de datos y lógica de negocio
-        if (!usuarioData.nombre || !usuarioData.email) {
+        if (!usuarioData.nombre || !usuarioData.contraseña) {
             throw new Error('Faltan datos obligatorios para crear el usuario.');
         }
-        const id = await crearUsuarioDB(usuarioData);
+
+        // 1. Hashear la contraseña antes de guardarla
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(usuarioData.contraseña, salt);
+
+        // 2. Crear un nuevo objeto con la contraseña hasheada
+        const usuarioParaDB = {
+            ...usuarioData,
+            contraseña: hashedPassword, // Reemplazamos la contraseña plana por la hasheada
+        };
+
+        const id = await crearUsuarioDB(usuarioParaDB);
         return id;
     } catch (error) {
         throw new Error('Error en la BLL al crear usuario: ' + error.message);

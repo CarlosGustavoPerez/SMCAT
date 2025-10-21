@@ -30,9 +30,25 @@ const UserManagement = () => {
     const fetchData = async () => {
         try {
             const usersData = await getUsers();
-            setUsers(usersData);
             const groupsData = await getGroups();
-            setGroups(groupsData);
+            setGroups(groupsData); // Guardamos los grupos también
+
+            // 1. Obtener los IDs de los grupos para todos los usuarios en paralelo
+            const usersWithGroupsPromises = usersData.map(async (user) => {
+                // getGroupsByUserId devuelve un array de objetos grupo: [{ idGrupo: 10, nombreGrupo: 'Grupo A' }, ...]
+                const userGroups = await getGroupsByUserId(user.idUsuario);
+                
+                // Adjuntar los nombres de los grupos como una string separada por comas
+                const groupNames = userGroups.map(g => g.nombreGrupo).join(', ');
+                return {
+                    ...user,
+                    groupNames: groupNames // Nueva propiedad para mostrar en la grilla
+                };
+            });
+
+            // 2. Esperar a que todas las promesas se resuelvan
+            const usersWithGroups = await Promise.all(usersWithGroupsPromises);
+            setUsers(usersWithGroups);
         } catch (error) {
             toast.error('Error al cargar datos: ' + error.message);
         }
@@ -92,14 +108,34 @@ const UserManagement = () => {
         }
     };
 
+    // Fragmento a modificar en UserManagement.jsx
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             if (isEditing) {
+                // Lógica de edición
                 await updateUser(selectedUser.idUsuario, userForm);
                 toast.success('Usuario modificado correctamente.');
             } else {
-                await addUser(userForm);
+                // Lógica de AGREGAR (Aplicar generación de usuario/contraseña por defecto)
+
+                // Limpiamos y convertimos a minúsculas para asegurar el formato 'cperez'
+                const nombreLimpio = userForm.nombre.trim();
+                const apellidoLimpio = userForm.apellido.trim();
+
+                if (!nombreLimpio || !apellidoLimpio) {
+                    throw new Error('Nombre y Apellido son obligatorios para generar credenciales.');
+                }
+                
+                const defaultUsername = (nombreLimpio.charAt(0) + apellidoLimpio).toLowerCase();
+                
+                const newUserForm = {
+                    ...userForm,
+                    nombreUsuario: defaultUsername, // Asignar el nombre de usuario generado
+                    contraseña: defaultUsername,    // Asignar la contraseña generada (por defecto)
+                };
+
+                await addUser(newUserForm); // Usamos el nuevo objeto con credenciales
                 toast.success('Usuario agregado correctamente.');
             }
             setIsModalOpen(false);
@@ -124,13 +160,7 @@ const UserManagement = () => {
             toast.error('Error al actualizar grupos: ' + error.message);
         }
     };
-
-    const teams = users.filter(u => u.rol === 'TeamLeader');
-    const getTeamLeaderName = (id) => {
-        const teamLeader = teams.find(tl => tl.idUsuario === id);
-        return teamLeader ? `${teamLeader.nombre} ${teamLeader.apellido}` : 'N/A';
-    };
-
+    
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
@@ -150,8 +180,7 @@ const UserManagement = () => {
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team Leader</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grupos</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
@@ -160,8 +189,7 @@ const UserManagement = () => {
                             <tr key={user.idUsuario}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nombre} {user.apellido}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.nombreUsuario}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.rol}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getTeamLeaderName(user.idTeamLeader)}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.groupNames}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <div className="flex items-center space-x-2">
                                         <button onClick={() => handleEditClick(user)} title="Editar" className="text-blue-600 hover:text-blue-900">
@@ -188,7 +216,7 @@ const UserManagement = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg">
-                        <h2 className="text-2xl font-bold mb-4">{isEditing ? 'Modificar Usuario' : 'Agregar Usuario'}</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-gray-900">{isEditing ? 'Modificar Usuario' : 'Agregar Usuario'}</h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Nombre</label>
@@ -198,35 +226,6 @@ const UserManagement = () => {
                                 <label className="block text-sm font-medium text-gray-700">Apellido</label>
                                 <input type="text" value={userForm.apellido} onChange={(e) => setUserForm({...userForm, apellido: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
-                                <input type="text" value={userForm.nombreUsuario} onChange={(e) => setUserForm({...userForm, nombreUsuario: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-                                <input type="password" value={userForm.contraseña} onChange={(e) => setUserForm({...userForm, contraseña: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required={!isEditing} />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Rol</label>
-                                <select value={userForm.rol} onChange={(e) => setUserForm({...userForm, rol: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
-                                    <option value="Administrador">Administrador</option>
-                                    <option value="TeamLeader">Team Leader</option>
-                                    <option value="Analista">Analista</option>
-                                </select>
-                            </div>
-                            {userForm.rol === 'Analista' && (
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700">Team Leader</label>
-                                    <select value={userForm.idTeamLeader || ''} onChange={(e) => setUserForm({...userForm, idTeamLeader: e.target.value ? parseInt(e.target.value, 10) : null})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                                        <option value="">Ninguno</option>
-                                        {teams.map(team => (
-                                            <option key={team.idUsuario} value={team.idUsuario}>
-                                                {team.nombre} {team.apellido}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
                             <div className="flex justify-end space-x-4 mt-6">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400">
                                     Cancelar

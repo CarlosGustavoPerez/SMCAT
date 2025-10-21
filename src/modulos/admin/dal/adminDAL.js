@@ -16,9 +16,14 @@ export const obtenerUsuariosDB = async () => {
  * @returns {Promise<number>} El ID del nuevo usuario.
  */
 export const crearUsuarioDB = async (usuarioData) => {
-    const { nombre, apellido, email, rol, password, idTeamLeader } = usuarioData;
-    const query = 'INSERT INTO Usuario (nombre, apellido, email, rol, password, idTeamLeader) VALUES (?, ?, ?, ?, ?, ?)';
-    const [result] = await pool.query(query, [nombre, apellido, email, rol, password, idTeamLeader]);
+    // Nota: 'contraseña' ahora contiene el hash de bcrypt.
+    // Asegúrate de que los nombres coincidan con las claves en usuarioData
+    const { nombre, apellido, nombreUsuario, contraseña } = usuarioData; 
+    
+    // Corregido el nombre de la variable en el query y en el array de valores
+    const query = 'INSERT INTO Usuario (nombre, apellido, nombreUsuario, contraseña) VALUES (?, ?, ?, ?)';
+    // Usamos el hash que viene en usuarioData.contraseña
+    const [result] = await pool.query(query, [nombre, apellido, nombreUsuario, contraseña]); 
     return result.insertId;
 };
 

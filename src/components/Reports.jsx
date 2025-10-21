@@ -146,7 +146,7 @@ const aplicarFiltros = async () => {
               type="date"
               value={filters.dateFrom}
               onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-700"
             />
           </div>
 
@@ -156,7 +156,7 @@ const aplicarFiltros = async () => {
               type="date"
               value={filters.dateTo}
               onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-700"
             />
           </div>
 
@@ -165,7 +165,7 @@ const aplicarFiltros = async () => {
             <select
               value={filters.operator}
               onChange={(e) => setFilters({ ...filters, operator: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-700"
             >
               <option value="">Todos</option>
               {operadoresDisponibles.map((op) => (
@@ -229,20 +229,25 @@ const aplicarFiltros = async () => {
                     <th className="text-left py-3 px-4 font-semibold text-gray-600">Actitud</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-600">Estructura</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-600">Protocolos</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-900 text-sm uppercase tracking-wider">Promedio</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-600">Observaciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reportData.map((row, index) => (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4">{`${row.nombreEvaluado} ${row.apellidoEvaluado}`}</td>
-                      <td className="py-3 px-4">{new Date(row.fechaHora).toLocaleDateString()}</td>
-                      <td className="py-3 px-4">{row.puntuacionActitud}</td>
-                      <td className="py-3 px-4">{row.puntuacionEstructura}</td>
-                      <td className="py-3 px-4">{row.puntuacionProtocolos}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{row.observaciones}</td>
-                    </tr>
-                  ))}
+                  {reportData.map((row, index) => {
+                    const averageScore = (row.puntuacionActitud + row.puntuacionEstructura + row.puntuacionProtocolos) / 3;
+                    return (
+                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 text-gray-700">
+                        <td className="py-3 px-4 ">{`${row.nombreEvaluado} ${row.apellidoEvaluado}`}</td>
+                        <td className="py-3 px-4">{new Date(row.fechaHora).toLocaleDateString()}</td>
+                        <td className="py-3 px-4">{row.puntuacionActitud}</td>
+                        <td className="py-3 px-4">{row.puntuacionEstructura}</td>
+                        <td className="py-3 px-4">{row.puntuacionProtocolos}</td>
+                        <td className="py-3 px-4 font-bold text-blue-700">{averageScore.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm">{row.observaciones}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

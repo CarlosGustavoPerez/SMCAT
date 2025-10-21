@@ -14,11 +14,15 @@ import {
 import { toast } from 'react-toastify';
 import { obtenerDashboard, actualizarEstadoEvaluacion } from '../modulos/dashboard/services/dashBoardService';
 
-const StatCard = ({ title, value, icon: Icon, color, onClick, description }) => (
+const StatCard = ({ title, value, icon: Icon, color, onClick, description, statusColorClass, statusBadge }) => (
   <div
-    className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-    onClick={onClick}
-  >
+        className={`bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-6 flex flex-col justify-between cursor-pointer 
+                    transition-all duration-300 hover:scale-[1.02] hover:shadow-xl
+                    ${statusColorClass || 'border-l-4 border-gray-300'} // Borde lateral dinámico
+                    border-l-4 pl-8 // Aseguramos el padding y el grosor del borde
+                  `}
+        onClick={onClick}
+    >
     <div className="flex items-start justify-between">
       <div>
         <p className="text-gray-500 text-sm font-medium">{title}</p>
@@ -30,6 +34,14 @@ const StatCard = ({ title, value, icon: Icon, color, onClick, description }) => 
     </div>
     {description && (
       <p className="text-sm text-gray-500 mt-2">{description}</p>
+    )}
+    {statusBadge && (
+        <span
+            className={`mt-2 px-3 py-1 rounded-full text-xs font-semibold self-start 
+                        ${statusBadge.class}`}
+        >
+            {statusBadge.text}
+        </span>
     )}
   </div>
 );
@@ -66,7 +78,7 @@ const Dashboard = ({ usuario }) => {
   const [selectedTeamLeader, setSelectedTeamLeader] = useState(null); // Nuevo estado
   const [selectedOperator, setSelectedOperator] = useState(null);
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
-
+  const [umbrales, setUmbrales] = useState([]);
   const isTeamLeaderOrAnalista = usuario.grupos.some(
     (g) => g.nombreGrupo === 'TeamLeader' || g.nombreGrupo === 'Analista'
   );
@@ -74,6 +86,32 @@ const Dashboard = ({ usuario }) => {
   const esAnalista = usuario.grupos.some(g => g.nombreGrupo === 'Analista');
   const esTeamLeader = usuario.grupos.some(g => g.nombreGrupo === 'TeamLeader');
 
+  const getUmbralColor = (score, umbralesArray) => {
+    if (!umbralesArray || umbralesArray.length === 0 || score === null || score === undefined) {
+        return { color: 'gray', nivel: 'Sin Datos' };
+    }
+    
+    const numericScore = parseFloat(score);
+
+    // Buscar el umbral que corresponde
+    const umbral = umbralesArray.find(u => {
+        const min = parseFloat(u.rango_min);
+        
+        // Si el score es mayor o igual al mínimo de ese rango, pertenece a ese nivel
+        return numericScore >= min;
+    });
+
+    // Devolver el color de Tailwind mapeado en la BLL
+    if (umbral) {
+        const twColor = umbral.color === 'green' ? 'border-green-500' :
+                        umbral.color === 'yellow' ? 'border-yellow-500' :
+                        'border-red-500';
+        return { colorClass: twColor, nivel: umbral.nombre_nivel };
+    }
+    
+    // Default
+    return { colorClass: 'border-gray-300', nivel: 'Fuera de Rango' };
+  };
   useEffect(() => {
     const cargarVistaInicial = async () => {
       try {
@@ -108,6 +146,7 @@ const Dashboard = ({ usuario }) => {
           }));
         }
         setViewLevel(initialView);
+        setUmbrales(data.umbrales || []);
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
         toast.error(error.message);
@@ -141,6 +180,7 @@ const Dashboard = ({ usuario }) => {
     let newStats = { ...stats };
     let newViewLevel = targetView;
     let filtro = {};
+    let data = null;
 
     if (targetView === 'operadores') {
         // Lógica para Analistas
@@ -153,7 +193,7 @@ const Dashboard = ({ usuario }) => {
             filtro = { idTeamLeader: usuario.idUsuario };
         }
         
-        const data = await obtenerDashboard({
+        data = await obtenerDashboard({
             grupos: usuario.grupos,
             idUsuario: usuario.idUsuario,
             filtro: filtro,
@@ -168,7 +208,7 @@ const Dashboard = ({ usuario }) => {
     else if (targetView === 'llamadas') {
         filtro = { idOperador: id };
 
-        const data = await obtenerDashboard({
+        data = await obtenerDashboard({
             grupos: usuario.grupos,
             idUsuario: usuario.idUsuario,
             filtro: filtro,
@@ -185,7 +225,9 @@ const Dashboard = ({ usuario }) => {
       );
       newViewLevel = 'detalle';
     }
-
+    if (data && data.umbrales) {
+        setUmbrales(data.umbrales);
+    }
     setStats(newStats);
     setViewLevel(newViewLevel);
     setIsLoading(false);
@@ -212,7 +254,39 @@ const Dashboard = ({ usuario }) => {
       }
     }
   };
+  const UmbralesLegend = ({ umbrales }) => {
+      const getColorClass = (color) => {
+          if (color === 'green') return 'bg-green-500';
+          if (color === 'yellow') return 'bg-yellow-500';
+          return 'bg-red-500';
+      };
 
+      if (!umbrales || umbrales.length === 0) {
+          return null;
+      }
+
+      return (
+        <div className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-4 mb-8">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-indigo-600" />
+                Referencia de Umbrales de Desempeño
+            </h3>
+            <div className="flex flex-wrap gap-4 md:gap-8">
+                {umbrales.map((u) => (
+                    <div key={u.nombre_nivel} className="flex items-center space-x-2">
+                        <span className={`h-4 w-4 rounded-full ${getColorClass(u.color)} shadow-sm`}></span>
+                        <span className="text-sm font-medium text-gray-600">
+                            {u.nombre_nivel}: 
+                            <span className="font-mono text-gray-700 ml-1">
+                                {u.rango_max === null ? 'Máx' : u.rango_max} -  {u.rango_min}
+                            </span>
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+      );
+    };
   const renderContent = () => {
     if (isLoading || viewLevel === null) {
       return (
@@ -224,6 +298,8 @@ const Dashboard = ({ usuario }) => {
 
     switch (viewLevel) {
       case 'general':
+        const generalScore = parseFloat(stats.promedioHoy);
+        const generalUmbral = getUmbralColor(generalScore, umbrales);
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 animate-fade-in">
             <StatCard
@@ -232,7 +308,8 @@ const Dashboard = ({ usuario }) => {
               icon={TrendingUp}
               color="bg-gradient-to-br from-purple-500 to-indigo-500"
               onClick={() => handleDrillDown(null, 'llamadas')}
-              description="Puntuación promedio de todas las llamadas monitoreadas."
+              description={`Nivel: ${generalUmbral.nivel}. Puntuación promedio de todas las llamadas monitoreadas.`} // Añadir nivel
+              statusColorClass={generalUmbral.colorClass}
             />
           </div>
         );
@@ -240,26 +317,30 @@ const Dashboard = ({ usuario }) => {
       case 'teamleaders':
         return (
           <div className="animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Equipos de Trabajo</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Promedios por Equipos de Trabajo</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stats.teamLeaders && stats.teamLeaders.length > 0 ? (
-                stats.teamLeaders.map((tl) => (
+                stats.teamLeaders.map((tl) => {
+                  const tlPromedio = parseFloat(tl.promedio);
+                  const tlUmbral = getUmbralColor(tlPromedio, umbrales);
+                  return (
                   <StatCard
                     key={tl.idUsuario}
-                    title={`${tl.nombre} ${tl.apellido}`}
+                    title={`Equipo de: ${tl.nombre} ${tl.apellido}`}
                     value={
-    <>
-      {parseFloat(tl.promedio).toFixed(2)}
-      <br />
-      ({tl.llamadas} llamadas)
-    </>
-  }
+                            <>
+                              Promedio: <b>{parseFloat(tl.promedio).toFixed(2)}</b>
+                              <br />
+                              ({tl.llamadas} llamadas)
+                            </>
+                          }
                     icon={Users}
                     color="bg-gradient-to-br from-purple-500 to-pink-500"
                     onClick={() => handleDrillDown(tl.idUsuario, 'operadores')}
-                    description={`Promedio de llamadas de este equipo.`}
+                    description={`Nivel: ${tlUmbral.nivel}`}
+                    statusColorClass={tlUmbral.colorClass}
                   />
-                ))
+                )})
               ) : (
                 <div className="col-span-full text-center py-12 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
                   <p className="text-gray-500">No se encontraron equipos.</p>
@@ -273,7 +354,6 @@ const Dashboard = ({ usuario }) => {
         const tituloOperadores = esAnalista
           ? `Operadores de ${selectedTeamLeader?.nombre} ${selectedTeamLeader?.apellido}`
           : `Operadores de mi Equipo`;
-
         return (
           <div className="animate-fade-in">
             {stats.teamLeaders && stats.teamLeaders.length > 0 ? (
@@ -299,17 +379,28 @@ const Dashboard = ({ usuario }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stats.operadores && stats.operadores.length > 0 ? (
-                stats.operadores.map((op) => (
+                stats.operadores.map((op) => {
+                  const opPromedio = parseFloat(op.promedio);
+                  const opUmbral = getUmbralColor(opPromedio, umbrales);
+                  return (
                   <StatCard
                     key={op.idUsuario}
-                    title={`${op.nombre} ${op.apellido}`}
-                    value={`${(parseFloat(op.promedio)).toFixed(2)} (${op.llamadas} llamadas)`}
+                    title={`Promedio de llamadas de: ${op.nombre} ${op.apellido}`}
+                    value={
+                            <>
+                              Promedio: <b>{parseFloat(op.promedio).toFixed(2)}</b>
+                              <br/>
+                              ({op.llamadas} llamadas)
+                            </>
+                          }
+                            // {`Promedio: ${(parseFloat(op.promedio)).toFixed(2)} (${op.llamadas} llamadas)`}
                     icon={User}
                     color="bg-gradient-to-br from-sky-500 to-cyan-500"
                     onClick={() => handleDrillDown(op.idUsuario, 'llamadas')}
-                    description={`Promedio de llamadas de este operador.`}
+                    description={`Nivel: ${opUmbral.nivel}`} // Añadir nivel
+                    statusColorClass={opUmbral.colorClass}
                   />
-                ))
+                )})
               ) : (
                 <div className="col-span-full text-center py-12 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
                   <p className="text-gray-500">No se encontraron operadores.</p>
@@ -337,9 +428,24 @@ const Dashboard = ({ usuario }) => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stats.llamadasPorOperador && stats.llamadasPorOperador.length > 0 ? (
-                stats.llamadasPorOperador.map((ev) => (
+                stats.llamadasPorOperador.map((ev) => {
+                  const evPromedio = (
+                    (ev.puntuacionActitud + ev.puntuacionEstructura + ev.puntuacionProtocolos) / 3
+                  ).toFixed(2);
+                  const llamadasUmbral = getUmbralColor(evPromedio, umbrales);
+                  let statusBadgeData;
+                    if (ev.estado === 'PENDIENTE DE REVISION') {
+                        statusBadgeData = { text: 'PENDIENTE', class: 'bg-yellow-100 text-yellow-800' };
+                    } else if (ev.estado === 'CERRADA CON CONFORMIDAD') {
+                        statusBadgeData = { text: 'CONFORME', class: 'bg-green-100 text-green-800' };
+                    } else if (ev.estado === 'CERRADA SIN CONFORMIDAD') {
+                        statusBadgeData = { text: 'NO CONFORME', class: 'bg-red-100 text-red-800' };
+                    } else {
+                        statusBadgeData = { text: 'Estado Desconocido', class: 'bg-gray-100 text-gray-800' };
+                    }
+                  return (
                   <StatCard
                     key={ev.idEvaluacion}
                     title={`Fecha: ${new Date(ev.fechaHora).toLocaleDateString()}`}
@@ -352,9 +458,11 @@ const Dashboard = ({ usuario }) => {
                     icon={Calendar}
                     color="bg-gradient-to-br from-indigo-500 to-blue-500"
                     onClick={() => handleDrillDown(ev.idEvaluacion, 'detalle')}
-                    //description={`Evaluada por ${ev.nombreEvaluador} ${ev.apellidoEvaluador}`}
+                    description={`Nivel: ${llamadasUmbral.nivel}`} // Añadir nivel
+                    statusColorClass={llamadasUmbral.colorClass}
+                    statusBadge={statusBadgeData} // ¡Pasa el nuevo dato!
                   />
-                ))
+                )})
               ) : (
                 <div className="col-span-full text-center py-12 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
                   <p className="text-gray-500">No hay llamadas para este operador.</p>
@@ -385,7 +493,7 @@ const Dashboard = ({ usuario }) => {
               <h2 className="text-2xl font-bold text-gray-800">Detalles de la Evaluación</h2>
             </div>
             <div className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
                 <p><strong>Operador:</strong> {ev.nombreEvaluado} {ev.apellidoEvaluado}</p>
                 {/* <p><strong>Evaluador:</strong> {ev.nombreEvaluador} {ev.apellidoEvaluador}</p> */}
                 <p><strong>Fecha:</strong> {new Date(ev.fechaHora).toLocaleString('es-ES')}</p>
@@ -441,10 +549,11 @@ const Dashboard = ({ usuario }) => {
         return null;
     }
   };
-
+  
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
+        <UmbralesLegend umbrales={umbrales} />
         {renderContent()}
       </div>
     </div>
