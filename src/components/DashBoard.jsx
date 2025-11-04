@@ -8,7 +8,6 @@ import {
   User,
   Loader2,
   ChevronLeft,
-  Stars,
   Users,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -159,17 +158,28 @@ const Dashboard = ({ usuario }) => {
 
   const cambiarEstado = async (idEvaluacion, nuevoEstado) => {
     try {
-      await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado);
+      const idUsuarioAccion = usuario.idUsuario;
+      await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado, idUsuarioAccion);
       toast.success('Estado actualizado correctamente');
-      const data = await obtenerDashboard({
-        grupos: usuario.grupos,
-        idUsuario: usuario.idUsuario,
-        filtro: { idOperador: selectedOperator?.idUsuario || usuario.idUsuario },
+      setStats(prevStats => {
+        const updatedLlamadas = prevStats.llamadasPorOperador.map(ev => {
+          if (ev.idEvaluacion === idEvaluacion) {
+            return { ...ev, estado: nuevoEstado };
+          }
+          return ev;
+        });
+        return {
+          ...prevStats,
+          llamadasPorOperador: updatedLlamadas, // Nuevo array
+        };
       });
-      setStats((prevStats) => ({
-        ...prevStats,
-        llamadasPorOperador: data.recientes || [],
-      }));
+      
+      if (selectedEvaluation && selectedEvaluation.idEvaluacion === idEvaluacion) {
+          setSelectedEvaluation(prevEv => ({
+              ...prevEv,
+              estado: nuevoEstado,
+          }));
+      }
     } catch (error) {
       toast.error(error.message);
     }
@@ -448,7 +458,7 @@ const Dashboard = ({ usuario }) => {
                   return (
                   <StatCard
                     key={ev.idEvaluacion}
-                    title={`Fecha: ${new Date(ev.fechaHora).toLocaleDateString()}`}
+                    title={<>ID: <span className="font-extrabold">{ev.idEvaluacion}</span> | Fecha: {new Date(ev.fechaHora).toLocaleDateString()}</>}
                     value={`Promedio: ${(
                       (ev.puntuacionActitud +
                         ev.puntuacionEstructura +
@@ -490,7 +500,13 @@ const Dashboard = ({ usuario }) => {
                 <ChevronLeft className="h-5 w-5" />
                 <span className="ml-1 text-sm font-medium">Atrás</span>
               </button>
-              <h2 className="text-2xl font-bold text-gray-800">Detalles de la Evaluación</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Detalles de la Evaluación 
+                {/* 🚨 AGREGAR ID AQUI */}
+                <span className="ml-2 px-3 py-1 bg-blue-500 text-white text-lg rounded-xl shadow-md">
+                    ID: {ev.idEvaluacion}
+                </span>
+              </h2>
             </div>
             <div className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">

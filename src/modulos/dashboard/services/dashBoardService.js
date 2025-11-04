@@ -20,11 +20,11 @@ export async function obtenerDashboard({ grupos, idUsuario, filtro }) {
   };
 }
 
-export async function actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado) {
+export async function actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado, idUsuarioAccion) {
   const res = await fetch('/api/evaluacion/estado', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idEvaluacion, nuevoEstado }),
+    body: JSON.stringify({ idEvaluacion, nuevoEstado,idUsuarioAccion }),
   });
 
   const data = await res.json();
@@ -35,3 +35,24 @@ export async function actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado) {
 
   return data;
 }
+export const obtenerTodoElHistorial = async () => {
+    const response = await fetch('/api/evaluacion/trazabilidad/todos');
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener todo el historial.');
+    }
+    return response.json();
+};
+export const obtenerOpcionesDeFiltro = async () => {
+    try {
+        const response = await fetch('/api/evaluacion/trazabilidad/users');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error al obtener opciones de filtro: ${response.status} - ${errorText}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Error en el servicio al obtener opciones de filtro:', error);
+        throw error;
+    }
+};

@@ -63,20 +63,20 @@ const LoginScreen = ({ onLogin }) => {
           </div>
 
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">contrasena</label>
             <input
               type={showPassword ? 'text' : 'password'}
               value={credentials.password}
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               onKeyDown={handleKeyDown}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-              placeholder="Ingrese su contraseña"
+              placeholder="Ingrese su contrasena"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-10 text-gray-600 hover:text-gray-900"
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
               tabIndex={-1}
             >
               {showPassword ? '🙈' : '👁️'}

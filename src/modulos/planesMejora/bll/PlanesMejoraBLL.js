@@ -78,24 +78,5 @@ export class PlanesMejoraBLL {
         // Lógica de negocio: si no se encuentra en la DB, asumimos el valor por defecto (ej. 3.0)
         return umbral !== null ? umbral : 2.5;
     }
-//     async obtenerUmbralesCompletos() {
-//     const umbrales = await getUmbralesCompletos(); // Nueva DAL function
-    
-//     // Encontrar el valor que actúa como Umbral Crítico (rango_min de Precaución)
-//     const umbralCriticoObj = umbrales.find(u => u.nombre_nivel === 'Precaución');
-    
-//     return {
-//         umbrales,
-//         umbralCritico: umbralCriticoObj ? umbralCriticoObj.rango_min : 2.50 // Fallback
-//     };
-// }
 
-// async guardarUmbrales(umbralesData) {
-//     // Validación de negocio aquí (ej: asegurarse que critico_max < precaucion_min)
-//     if (umbralesData.critico_max >= umbralesData.precaucion_min) {
-//         throw new Error("Error de lógica: El rango máximo de Crítico debe ser menor al mínimo de Precaución.");
-//     }
-    
-//     return await actualizarUmbrales(umbralesData); // Llamada a la DAL function
-// }
 }

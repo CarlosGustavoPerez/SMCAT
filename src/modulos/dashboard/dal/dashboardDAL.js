@@ -132,9 +132,21 @@ export const getOperadoresAgrupadosPorTeamLeader = async () => {
     return Object.values(teamLeaders);
 };
 
-export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado) => { 
-    const query = 'UPDATE Evaluacion SET estado = ? WHERE idEvaluacion = ?'; 
-    await pool.query(query, [nuevoEstado, idEvaluacion]); 
+export const actualizarEstadoEvaluacion = async (idEvaluacion, nuevoEstado, idUsuarioAccion) => { 
+    const connection = await pool.getConnection(); 
+    try {
+        await connection.beginTransaction();
+        await connection.query(`SET @id_usuario_accion = ?;`, [idUsuarioAccion]); 
+        const query = 'UPDATE Evaluacion SET estado = ? WHERE idEvaluacion = ?'; 
+        await connection.query(query, [nuevoEstado, idEvaluacion]); 
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        console.error("Error en actualizarEstadoEvaluacion (Trazabilidad):", error);
+        throw error;
+    } finally {
+        connection.release();
+    }
 };
 
 export const getUmbralesDesempenoDAL = async (dbClient) => {
@@ -145,8 +157,6 @@ export const getUmbralesDesempenoDAL = async (dbClient) => {
             ORDER BY rango_min DESC
         `;
         const [umbrales] = await dbClient.query(query);
-        
-        // El mapeo simple se mantiene en DAL, BLL puede refinar el formato si es necesario.
         return umbrales; 
     } catch (error) {
         console.error('Error en DAL al obtener umbrales:', error);

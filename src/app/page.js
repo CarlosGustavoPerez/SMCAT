@@ -14,7 +14,7 @@ import Reports from '@/components/Reports';
 import AdminPanel from '@/components/admin/AdminPanel';
 import AuditoriaPanel from '@/components/AuditoriaSesionesReport';
 import UmbralesPanel from '@/components/UmbralesABM';
-
+import TrazabilidadPanel from '@/components/TrazabilidadPanel';
 import { logoutUsuario } from '@/modulos/authentication/services/authService';
 
 // Componente Principal con Navegación
@@ -80,6 +80,12 @@ const SMCATApp = () => {
         { id: 'evaluation', label: 'Nueva Evaluación', icon: FileText, requiredGroups: ['Analista'] },
         { id: 'reports', label: 'Reportes', icon: TrendingUp, requiredGroups: ['Operador', 'Analista', 'TeamLeader'] },
         { id: 'planMejora', label: 'Planes de Mejora', icon: CheckSquare, requiredGroups: ['Analista', 'TeamLeader', 'Supervisor'] }, 
+        { 
+            id: 'trazabilidad', 
+            label: 'Trazabilidad de Evaluaciones', 
+            icon: SearchCheck, 
+            requiredGroups: ['Supervisor', 'Administrador'] // 🚨 NUEVA OPCIÓN Y RESTRICCIÓN
+        },
         { id: 'admin', label: 'Gestión de Seguridad', icon: ShieldCheck, requiredGroups: ['Administrador'] },
         { id: 'auditoriaSesion', label: 'Auditoría de Sesiones', icon: SearchCheck, requiredGroups: ['Administrador'] },
         { id: 'umbralesABM', label: 'Umbrales de Desempeño', icon: TrendingUp, requiredGroups: ['Administrador'] },
@@ -111,6 +117,8 @@ const SMCATApp = () => {
                 return usuarioActual && <AuditoriaPanel usuario={usuarioActual} />;
             case 'umbralesABM':
                 return usuarioActual && <UmbralesPanel usuario={usuarioActual} />;
+            case 'trazabilidad':
+                return usuarioActual && <TrazabilidadPanel usuario={usuarioActual} />;
             default:
                 return <Dashboard usuario={usuarioActual} />;
         }

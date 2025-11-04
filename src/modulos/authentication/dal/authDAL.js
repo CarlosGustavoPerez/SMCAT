@@ -1,7 +1,7 @@
 export const findUserByUsername = async (nombreUsuario, dbClient) => {
     try {
         const [users] = await dbClient.query(
-            'SELECT idUsuario, nombre, apellido, nombreUsuario, contraseña FROM Usuario WHERE nombreUsuario = ?',
+            'SELECT idUsuario, nombre, apellido, nombreUsuario, contrasena FROM Usuario WHERE nombreUsuario = ?',
             [nombreUsuario]
         );
         return users[0] || null;

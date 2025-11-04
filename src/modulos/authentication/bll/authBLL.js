@@ -2,20 +2,20 @@ import { findUserByUsername, findGroupsByUserId, registrarAuditoriaSesion } from
 import { Usuario } from '../be/Usuario';
 import bcrypt from 'bcryptjs';
 
-export const loginUsuario = async (nombreUsuario, contraseña, dbClient) => {
-    if (!nombreUsuario || !contraseña) {
+export const loginUsuario = async (nombreUsuario, contrasena, dbClient) => {
+    if (!nombreUsuario || !contrasena) {
         return null;
     }
     const usuarioDB = await findUserByUsername(nombreUsuario, dbClient);
     if (!usuarioDB) {
         return null;
     }
-    const isMatch = await bcrypt.compare(contraseña, usuarioDB.contraseña);
+    const isMatch = await bcrypt.compare(contrasena, usuarioDB.contrasena);
     if (!isMatch) {
         return null;
     }
     const gruposUsuario = await findGroupsByUserId(usuarioDB.idUsuario, dbClient);
-    const { contraseña: _, ...usuarioSinClave } = usuarioDB;
+    const { contrasena: _, ...usuarioSinClave } = usuarioDB;
     const usuarioConGrupos = { ...usuarioSinClave, grupos: gruposUsuario };
     const usuario = new Usuario(usuarioConGrupos);
 

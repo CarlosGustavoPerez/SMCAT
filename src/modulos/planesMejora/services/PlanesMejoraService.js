@@ -17,7 +17,6 @@ const getAuthHeaders = () => {
         'X-User-Groups-JSON': userGroupsJson, 
     };
 };
-
 export async function obtenerOperadoresElegibles(umbralCritico) {
     if (umbralCritico === undefined || umbralCritico === null) {
         throw new Error("El umbral crítico es requerido para obtener operadores elegibles.");
@@ -37,7 +36,6 @@ export async function obtenerOperadoresElegibles(umbralCritico) {
 
     return data;
 }
-
 export async function crearPlanMejora(plan) {
     const res = await fetch('/api/planes-mejora/nuevo', {
         method: 'POST',
@@ -51,7 +49,6 @@ export async function crearPlanMejora(plan) {
     }
     return data;
 }
-
 export async function obtenerTodosLosPlanes() {
     const res = await fetch('/api/planes-mejora/todos', {
         headers: getAuthHeaders(),
@@ -63,7 +60,6 @@ export async function obtenerTodosLosPlanes() {
     }
     return data.planes;
 }
-
 export async function cerrarPlanMejora(planId, estado, resultado) {
     const res = await fetch(`/api/planes-mejora/${planId}/cerrar`, {
         method: 'PUT', // Usamos PUT/PATCH para actualizar
@@ -93,15 +89,14 @@ export async function obtenerUmbralCritico() {
     // Retorna el valor numérico del umbral
     return parseFloat(data.umbral); 
 }
-export async function obtenerUmbralesCompletos() {
-    const res = await fetch('/api/configuracion/umbrales-abm'); // Nueva API Route
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Error al obtener umbrales completos.');
-    }
-    return data;
-}
-
+// export async function obtenerUmbralesCompletos() {
+//     const res = await fetch('/api/configuracion/umbrales-abm'); // Nueva API Route
+//     const data = await res.json();
+//     if (!res.ok || !data.success) {
+//         throw new Error(data.error || 'Error al obtener umbrales completos.');
+//     }
+//     return data;
+// }
 export async function guardarUmbrales(umbralesData) {
     const res = await fetch('/api/configuracion/umbrales-abm', {
         method: 'PUT',

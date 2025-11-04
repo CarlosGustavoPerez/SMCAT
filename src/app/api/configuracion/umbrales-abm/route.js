@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
 import { UmbralesBLL } from '@/modulos/umbrales/bll/UmbralesBLL';
 
-//import { PlanesMejoraBLL } from '@/modulos/planesMejora/bll/PlanesMejoraBLL'; 
-
 const umbralesService = new UmbralesBLL();
-// -------------------------------------------------------------
-// GET: Obtener la configuración actual para mostrar en el formulario ABM
-// -------------------------------------------------------------
 export async function GET() {
-    // Implementar chequeo de rol (ej: solo Admin/Supervisor) aquí si es necesario
     try {
         const data = await umbralesService.obtenerUmbralesCompletos();
         return NextResponse.json({ success: true, ...data });
@@ -17,12 +11,7 @@ export async function GET() {
         return NextResponse.json({ success: false, error: error.message || 'Error al obtener la configuración de umbrales.' }, { status: 500 });
     }
 }
-
-// -------------------------------------------------------------
-// PUT: Actualizar la configuración de umbrales
-// -------------------------------------------------------------
 export async function PUT(request) {
-    // Implementar chequeo de rol (ej: solo Admin/Supervisor) aquí si es necesario
     try {
         const body = await request.json();
         const { precaucion_min, precaucion_max } = body;

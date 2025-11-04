@@ -159,18 +159,8 @@ src
 ## 🛡️ Seguridad
 
 - Validaciones en login
-- Autenticación por `nombreUsuario` y `contraseña`
+- Autenticación por `nombreUsuario` y `contrasena`
 - Acceso restringido según el rol del usuario
--1 lfernandez: Analista123!
--2 jlopez: Analista456!
--3 jperez: Operador123!
--4 mgonzalez: Operador456!
--5 clopez: Operador789!
--6 amartinez: Operador321!
--7 mramirez: Lider123!
--8 esuarez: Lider456!
--9 yanina: Lider1234!
--10 cperez: AdminCPEREZ
 
 ---
 

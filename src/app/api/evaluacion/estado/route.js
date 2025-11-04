@@ -2,8 +2,8 @@ import { cambiarEstadoDeEvaluacion } from '@/modulos/dashboard/bll/dashboardBLL'
 
 export async function POST(request) {
   try {
-    const { idEvaluacion, nuevoEstado } = await request.json();
-    await cambiarEstadoDeEvaluacion(idEvaluacion, nuevoEstado);
+    const { idEvaluacion, nuevoEstado, idUsuarioAccion } = await request.json();
+    await cambiarEstadoDeEvaluacion(idEvaluacion, nuevoEstado, idUsuarioAccion);
     
     return Response.json({ success: true, mensaje: 'Estado actualizado correctamente' });
   } catch (error) {

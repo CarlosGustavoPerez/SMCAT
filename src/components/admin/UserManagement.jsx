@@ -20,7 +20,7 @@ const UserManagement = () => {
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [userForm, setUserForm] = useState({ nombre: '', apellido: '', nombreUsuario: '', contraseña: '', rol: 'Analista', idTeamLeader: null });
+    const [userForm, setUserForm] = useState({ nombre: '', apellido: '', nombreUsuario: '', contrasena: '', rol: 'Analista', idTeamLeader: null });
     const [userGroups, setUserGroups] = useState([]);
 
     useEffect(() => {
@@ -56,7 +56,7 @@ const UserManagement = () => {
 
     const handleAddClick = () => {
         setIsEditing(false);
-        setUserForm({ nombre: '', apellido: '', nombreUsuario: '', contraseña: '', rol: 'Analista', idTeamLeader: null });
+        setUserForm({ nombre: '', apellido: '', nombreUsuario: '', contrasena: '', rol: 'Analista', idTeamLeader: null });
         setIsModalOpen(true);
     };
 
@@ -67,7 +67,7 @@ const UserManagement = () => {
             nombre: user.nombre,
             apellido: user.apellido,
             nombreUsuario: user.nombreUsuario,
-            contraseña: '', // No cargar la contraseña por seguridad
+            contrasena: '', // No cargar la contrasena por seguridad
             rol: user.rol,
             idTeamLeader: user.idTeamLeader
         });
@@ -117,7 +117,7 @@ const UserManagement = () => {
                 await updateUser(selectedUser.idUsuario, userForm);
                 toast.success('Usuario modificado correctamente.');
             } else {
-                // Lógica de AGREGAR (Aplicar generación de usuario/contraseña por defecto)
+                // Lógica de AGREGAR (Aplicar generación de usuario/contrasena por defecto)
 
                 // Limpiamos y convertimos a minúsculas para asegurar el formato 'cperez'
                 const nombreLimpio = userForm.nombre.trim();
@@ -132,7 +132,7 @@ const UserManagement = () => {
                 const newUserForm = {
                     ...userForm,
                     nombreUsuario: defaultUsername, // Asignar el nombre de usuario generado
-                    contraseña: defaultUsername,    // Asignar la contraseña generada (por defecto)
+                    contrasena: defaultUsername,    // Asignar la contrasena generada (por defecto)
                 };
 
                 await addUser(newUserForm); // Usamos el nuevo objeto con credenciales

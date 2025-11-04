@@ -14,11 +14,11 @@ function getClientIp(request) {
 
 
 export async function POST(request) {
-    const { nombreUsuario, contraseña } = await request.json();
+    const { nombreUsuario, contrasena } = await request.json();
     const { ipOrigen} = getClientIp(request); 
 
     try {
-        if (!nombreUsuario || !contraseña) {
+        if (!nombreUsuario || !contrasena) {
             // REGISTRO DE FALLO POR DATOS INCOMPLETOS
             await registrarEventoSesion({ 
                 nombreUsuario: nombreUsuario || 'VACÍO', 
@@ -30,7 +30,7 @@ export async function POST(request) {
             return Response.json({ success: false, error: 'Faltan datos' }, { status: 400 });
         }
         
-        const usuario = await loginUsuario (nombreUsuario, contraseña, pool);
+        const usuario = await loginUsuario (nombreUsuario, contrasena, pool);
 
         if (!usuario) {
             // REGISTRO DE LOGIN FALLIDO POR CREDENCIALES

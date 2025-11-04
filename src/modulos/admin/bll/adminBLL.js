@@ -24,18 +24,18 @@ export const obtenerUsuarios = async () => {
 export const crearUsuario = async (usuarioData) => {
     try {
         // Validación de datos y lógica de negocio
-        if (!usuarioData.nombre || !usuarioData.contraseña) {
+        if (!usuarioData.nombre || !usuarioData.contrasena) {
             throw new Error('Faltan datos obligatorios para crear el usuario.');
         }
 
-        // 1. Hashear la contraseña antes de guardarla
+        // 1. Hashear la contrasena antes de guardarla
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(usuarioData.contraseña, salt);
+        const hashedPassword = await bcrypt.hash(usuarioData.contrasena, salt);
 
-        // 2. Crear un nuevo objeto con la contraseña hasheada
+        // 2. Crear un nuevo objeto con la contrasena hasheada
         const usuarioParaDB = {
             ...usuarioData,
-            contraseña: hashedPassword, // Reemplazamos la contraseña plana por la hasheada
+            contrasena: hashedPassword, // Reemplazamos la contrasena plana por la hasheada
         };
 
         const id = await crearUsuarioDB(usuarioParaDB);

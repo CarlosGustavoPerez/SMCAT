@@ -29,13 +29,13 @@ export const getOperadoresAgrupadosPorTeamLeaderBLL = async () => {
   return data;
 };
 
-export const cambiarEstadoDeEvaluacion = async (idEvaluacion, nuevoEstado) => { 
+export const cambiarEstadoDeEvaluacion = async (idEvaluacion, nuevoEstado, idUsuarioAccion) => { 
   const estadosValidos = ['CERRADA CON CONFORMIDAD', 'CERRADA SIN CONFORMIDAD']; 
   if (!estadosValidos.includes(nuevoEstado)) { 
     throw new Error('Estado inválido. No se puede actualizar.'); 
   } 
 
-  await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado); 
+  await actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado, idUsuarioAccion); 
 };
 
 export const getUmbralesBLL = async () => {
