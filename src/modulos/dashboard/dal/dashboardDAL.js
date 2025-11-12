@@ -49,7 +49,6 @@ export const getOperadoresDeTeamLeader = async (idTeamLeader) => {
             COUNT(e.idEvaluacion) AS llamadas 
         FROM Usuario u 
         JOIN Evaluacion e ON e.idEvaluado = u.idUsuario 
-        -- Ahora unimos a la nueva tabla intermedia para encontrar al Team Leader.
         JOIN OperadorTeamLeader otl ON otl.idUsuario = u.idUsuario
         JOIN Usuario tl ON otl.idTeamLeader = tl.idUsuario
         WHERE otl.idTeamLeader = ? 
@@ -72,7 +71,6 @@ export const getTodosLosOperadores = async () => {
             COUNT(e.idEvaluacion) AS llamadas 
         FROM Usuario u 
         JOIN Evaluacion e ON e.idEvaluado = u.idUsuario 
-        -- Usamos LEFT JOIN para incluir operadores que no tengan un Team Leader asignado.
         LEFT JOIN OperadorTeamLeader otl ON otl.idUsuario = u.idUsuario 
         LEFT JOIN Usuario tl ON otl.idTeamLeader = tl.idUsuario 
         GROUP BY u.idUsuario, tl.nombre, tl.apellido 
@@ -95,7 +93,6 @@ export const getOperadoresAgrupadosPorTeamLeader = async () => {
             COUNT(e.idEvaluacion) AS llamadas
         FROM Usuario u
         JOIN Evaluacion e ON e.idEvaluado = u.idUsuario
-        -- Ahora unimos a la nueva tabla intermedia para agrupar
         JOIN OperadorTeamLeader otl ON otl.idUsuario = u.idUsuario
         JOIN Usuario tl ON otl.idTeamLeader = tl.idUsuario
         GROUP BY tl.idUsuario, u.idUsuario

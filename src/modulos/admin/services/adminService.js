@@ -43,13 +43,35 @@ export const deleteUser = async (id) => {
     }
 };
 
-export const resetPassword = async (id) => {
-    const response = await fetch(`/api/admin/users/${id}/reset-password`, {
-        method: 'PUT',
-    });
-    if (!response.ok) {
-        throw new Error('Error al resetear la clave.');
+import { getSessionUser } from '@/lib/utils/sessionStorage';
+
+export const resetPassword = async (user) => {
+    const userId = user.idUsuario;
+    const sessionUser = getSessionUser();
+
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (sessionUser) {
+        // Enviar info del usuario que realiza la acción para auditoría en el backend
+        headers['X-User-JSON'] = JSON.stringify({ idUsuario: sessionUser.idUsuario, nombreUsuario: sessionUser.nombreUsuario });
+        // También enviar los grupos para que el middleware pueda autorizarel si fuese necesario
+        headers['X-User-Groups-JSON'] = JSON.stringify(sessionUser.grupos || []);
     }
+
+    const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: 'POST', 
+        headers,
+        body: JSON.stringify({}), 
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al resetear la clave.');
+    }
+    
+    return await response.json();
 };
 
 export const getGroups = async () => {
@@ -150,4 +172,12 @@ export const getTeamLeaders = async () => {
         throw new Error('Error al obtener los Team Leaders.');
     }
     return response.json();
+};
+export const getTeamLeaderByUserId = async (idUsuario) => {
+    // Necesitas una API route /api/admin/users/[id]/teamleader
+    const response = await fetch(`/api/admin/users/${idUsuario}/teamleader`); 
+    if (!response.ok) {
+        throw new Error('Error al obtener Team Leader del usuario.');
+    }
+    return response.json(); // Esperamos { idTeamLeader: '...' } o { idTeamLeader: null }
 };

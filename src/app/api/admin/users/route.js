@@ -13,8 +13,12 @@ export async function GET() {
 export async function POST(request) {
     try {
         const data = await request.json();
-        const idUsuario = await crearUsuario(data);
-        return NextResponse.json({ message: 'Usuario agregado exitosamente', idUsuario }, { status: 201 });
+        const result = await crearUsuario(data);
+        // result can be either an id or an object { idUsuario, newPassword }
+        if (result && typeof result === 'object') {
+            return NextResponse.json({ message: 'Usuario agregado exitosamente', idUsuario: result.idUsuario, newPassword: result.newPassword }, { status: 201 });
+        }
+        return NextResponse.json({ message: 'Usuario agregado exitosamente', idUsuario: result }, { status: 201 });
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }

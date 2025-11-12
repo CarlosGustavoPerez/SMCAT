@@ -56,12 +56,15 @@ const SMCATApp = () => {
     if (!isLoggedIn) {
         return (
             <LoginScreen
-                onLogin={(usuario) => {
-                    saveSessionUser(usuario);
-                    setIsLoggedIn(true);
-                    setUsuarioActual(usuario);
-                }}
-            />
+                    onLogin={(usuario) => {
+                        saveSessionUser(usuario);
+                        setIsLoggedIn(true);
+                        setUsuarioActual(usuario);
+                        // Al iniciar sesión, determinar y fijar la vista inicial (dashboard o admin)
+                        const initialView = getInitialView(usuario);
+                        setCurrentView(initialView);
+                    }}
+                />
         );
     }
     
@@ -188,7 +191,9 @@ const SMCATApp = () => {
                         </div>
                     )}
                     <hr className="border-gray-200" />
-                    {renderCurrentView()}
+                    <div key={currentView} className="view-transition animate-fade-in">
+                        {renderCurrentView()}
+                    </div>
                 </div>
             </div>
             <ToastContainer position="top-right" autoClose={3000} />

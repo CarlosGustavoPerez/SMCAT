@@ -6,12 +6,15 @@ export async function loginUsuario(nombreUsuario, contrasena) {
   });
 
   const data = await res.json();
+  const json = data;
 
-  if (!res.ok || !data.success) {
-    return null; // Retornamos null en caso de fallo
+  // Devolvemos el objeto de respuesta completo para que el frontend pueda
+  // manejar casos como KEY_EXPIRED y mostrar el modal de cambio de clave.
+  if (!res.ok) {
+    return json;
   }
 
-  return data.usuario;
+  return json;
 }
 export async function logoutUsuario(idUsuario, nombreUsuario) {
   // Llamamos al nuevo endpoint /api/auth/logout

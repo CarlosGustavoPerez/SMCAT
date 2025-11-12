@@ -10,17 +10,20 @@ import {
     getGroups,
     assignGroupToUser,
     removeGroupFromUser,
-    getGroupsByUserId
+    getGroupsByUserId,
+    getTeamLeaders,
+    getTeamLeaderByUserId
 } from '@/modulos/admin/services/adminService';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [groups, setGroups] = useState([]);
+    const [teamLeaders, setTeamLeaders] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [userForm, setUserForm] = useState({ nombre: '', apellido: '', nombreUsuario: '', contrasena: '', rol: 'Analista', idTeamLeader: null });
+    const [userForm, setUserForm] = useState({ nombre: '', apellido: '', nombreUsuario: '', contrasena: '', idGrupo: '', idTeamLeader: '' });
     const [userGroups, setUserGroups] = useState([]);
 
     useEffect(() => {
@@ -31,8 +34,9 @@ const UserManagement = () => {
         try {
             const usersData = await getUsers();
             const groupsData = await getGroups();
-            setGroups(groupsData); // Guardamos los grupos también
-
+            const teamLeadersData = await getTeamLeaders();
+            setGroups(groupsData);
+            setTeamLeaders(teamLeadersData);
             // 1. Obtener los IDs de los grupos para todos los usuarios en paralelo
             const usersWithGroupsPromises = usersData.map(async (user) => {
                 // getGroupsByUserId devuelve un array de objetos grupo: [{ idGrupo: 10, nombreGrupo: 'Grupo A' }, ...]
@@ -56,20 +60,42 @@ const UserManagement = () => {
 
     const handleAddClick = () => {
         setIsEditing(false);
-        setUserForm({ nombre: '', apellido: '', nombreUsuario: '', contrasena: '', rol: 'Analista', idTeamLeader: null });
+        setUserForm({ 
+            nombre: '', 
+            apellido: '', 
+            nombreUsuario: '', 
+            contrasena: '', 
+            idGrupo: '', 
+            idTeamLeader: ''
+        });
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (user) => {
+    const handleEditClick = async (user) => {
         setIsEditing(true);
         setSelectedUser(user);
+        let primaryGroupId = '';
+        let assignedTeamLeaderId = '';
+        try {
+            const userGroupsData = await getGroupsByUserId(user.idUsuario);
+            if (userGroupsData && userGroupsData.length > 0) {
+                primaryGroupId = String(userGroupsData[0].idGrupo);
+            }
+            const tlResponse = await getTeamLeaderByUserId(user.idUsuario);
+            if (tlResponse.idTeamLeader) {
+                // Convertir a string para que coincida con el valor del select
+                assignedTeamLeaderId = String(tlResponse.idTeamLeader); 
+            }
+        } catch (e) {
+            console.error('Error fetching user groups for edit:', e);
+        }
         setUserForm({
             nombre: user.nombre,
             apellido: user.apellido,
             nombreUsuario: user.nombreUsuario,
-            contrasena: '', // No cargar la contrasena por seguridad
-            rol: user.rol,
-            idTeamLeader: user.idTeamLeader
+            contrasena: '',
+            idGrupo: primaryGroupId,
+            idTeamLeader: assignedTeamLeaderId
         });
         setIsModalOpen(true);
     };
@@ -85,11 +111,11 @@ const UserManagement = () => {
         }
     };
 
-    const handleResetPassword = async (idUsuario) => {
+    const handleResetPassword = async (user) => {
         if (window.confirm('¿Está seguro de que desea resetear la clave de este usuario?')) {
             try {
-                await resetPassword(idUsuario);
-                toast.success('Clave reseteada correctamente.');
+                const result = await resetPassword(user);
+                toast.success(`Clave reseteada correctamente. La nueva clave es: ${result.newPassword}`);
             } catch (error) {
                 toast.error('Error al resetear clave: ' + error.message);
             }
@@ -108,18 +134,27 @@ const UserManagement = () => {
         }
     };
 
-    // Fragmento a modificar en UserManagement.jsx
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             if (isEditing) {
-                // Lógica de edición
-                await updateUser(selectedUser.idUsuario, userForm);
-                toast.success('Usuario modificado correctamente.');
-            } else {
-                // Lógica de AGREGAR (Aplicar generación de usuario/contrasena por defecto)
+                const dataToUpdate = { 
+                    nombre: userForm.nombre,
+                    apellido: userForm.apellido,
+                    nombreUsuario: userForm.nombreUsuario,
+                    idGrupo: userForm.idGrupo,
+                    idTeamLeader: userForm.idTeamLeader || null,
+                };
 
-                // Limpiamos y convertimos a minúsculas para asegurar el formato 'cperez'
+                if (userForm.contrasena !== '') {
+                    dataToUpdate.contrasena = userForm.contrasena;
+                }
+
+                await updateUser(selectedUser.idUsuario, dataToUpdate);
+                toast.success('Usuario modificado correctamente.');
+
+            } else {
+                // Lógica de AGREGAR
                 const nombreLimpio = userForm.nombre.trim();
                 const apellidoLimpio = userForm.apellido.trim();
 
@@ -127,16 +162,23 @@ const UserManagement = () => {
                     throw new Error('Nombre y Apellido son obligatorios para generar credenciales.');
                 }
                 
+                if (!userForm.idGrupo) { // <-- Nueva validación de Rol/Grupo
+                    throw new Error('Debe seleccionar un Rol (Grupo) para el usuario.');
+                }
+
                 const defaultUsername = (nombreLimpio.charAt(0) + apellidoLimpio).toLowerCase();
                 
                 const newUserForm = {
                     ...userForm,
-                    nombreUsuario: defaultUsername, // Asignar el nombre de usuario generado
-                    contrasena: defaultUsername,    // Asignar la contrasena generada (por defecto)
+                    nombreUsuario: defaultUsername, 
+                    contrasena: defaultUsername,   
+                    idGrupo: userForm.idGrupo,
+                    idTeamLeader: userForm.idTeamLeader || null,
                 };
-
-                await addUser(newUserForm); // Usamos el nuevo objeto con credenciales
-                toast.success('Usuario agregado correctamente.');
+                const result = await addUser(newUserForm);
+                // Mostrar la contraseña real devuelta por el servidor si existe, si no usar el defaultUsername
+                const passwordToShow = (result && result.newPassword) ? result.newPassword : defaultUsername;
+                toast.success(`Usuario agregado correctamente. Credenciales por defecto: ${passwordToShow}`);
             }
             setIsModalOpen(false);
             fetchData();
@@ -198,7 +240,7 @@ const UserManagement = () => {
                                         <button onClick={() => handleDelete(user.idUsuario)} title="Eliminar" className="text-red-600 hover:text-red-900">
                                             <Trash className="h-5 w-5" />
                                         </button>
-                                        <button onClick={() => handleResetPassword(user.idUsuario)} title="Resetear clave" className="text-gray-600 hover:text-gray-900">
+                                        <button onClick={() => handleResetPassword(user)} title="Resetear clave" className="text-gray-600 hover:text-gray-900">
                                             <RotateCcw className="h-5 w-5" />
                                         </button>
                                         <button onClick={() => handleGroupClick(user)} title="Asignar grupos" className="text-purple-600 hover:text-purple-900">
@@ -220,12 +262,48 @@ const UserManagement = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                                <input type="text" value={userForm.nombre} onChange={(e) => setUserForm({...userForm, nombre: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
+                                <input type="text" value={userForm.nombre} onChange={(e) => setUserForm({...userForm, nombre: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-600" required />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Apellido</label>
-                                <input type="text" value={userForm.apellido} onChange={(e) => setUserForm({...userForm, apellido: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
+                                <input type="text" value={userForm.apellido} onChange={(e) => setUserForm({...userForm, apellido: e.target.value})} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-600" required />
                             </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Rol (Grupo)</label>
+                                <select
+                                    value={userForm.idGrupo}
+                                    onChange={(e) => setUserForm({...userForm, idGrupo: e.target.value})}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-600"
+                                    required
+                                >
+                                    <option value="">Seleccione un Rol</option>
+                                    {groups.map((group) => (
+                                        <option key={group.idGrupo} value={group.idGrupo}>
+                                            {group.nombreGrupo}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {
+                                groups.find(g => g.idGrupo == userForm.idGrupo)?.nombreGrupo === 'Operador' && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">Team Leader</label>
+                                        <select
+                                            value={userForm.idTeamLeader}
+                                            onChange={(e) => setUserForm({...userForm, idTeamLeader: e.target.value})}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-600"
+                                            required
+                                        >
+                                            <option value="">Seleccione un Team Leader</option>
+                                            {teamLeaders.map((tl) => (
+                                                <option key={tl.idUsuario} value={tl.idUsuario}>
+                                                    {tl.nombre} {tl.apellido}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )
+                            }
                             <div className="flex justify-end space-x-4 mt-6">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400">
                                     Cancelar

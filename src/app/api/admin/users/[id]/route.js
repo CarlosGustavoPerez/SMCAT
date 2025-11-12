@@ -1,24 +1,27 @@
-import { modificarUsuario, eliminarUsuario } from '@/modulos/admin/bll/adminBLL';
+import { actualizarUsuario, eliminarUsuario } from '@/modulos/admin/bll/adminBLL';
+import { NextResponse } from 'next/server';
 
-export async function PUT(request, { params }) {
+export async function PUT(request, context) {
     try {
-        const { id } = params;
+        const params = await context.params;
+        const id = params.id;
         const userData = await request.json();
-        await modificarUsuario(id, userData);
-        return Response.json({ success: true });
+        await actualizarUsuario(id, userData);
+        return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         console.error('Error en PUT /api/admin/users/[id]:', error);
-        return Response.json({ success: false, error: 'Error al modificar usuario' }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Error al modificar usuario' }, { status: 500 });
     }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request, context) {
     try {
-        const { id } = params;
+        const params = await context.params;
+        const id = params.id;
         await eliminarUsuario(id);
-        return Response.json({ success: true });
+        return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         console.error('Error en DELETE /api/admin/users/[id]:', error);
-        return Response.json({ success: false, error: 'Error al eliminar usuario' }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Error al eliminar usuario' }, { status: 500 });
     }
 }
