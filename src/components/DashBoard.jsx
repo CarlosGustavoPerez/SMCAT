@@ -338,11 +338,11 @@ const Dashboard = ({ usuario }) => {
                     key={tl.idUsuario}
                     title={`Equipo de: ${tl.nombre} ${tl.apellido}`}
                     value={
-                            <>
+                            <div className="text-2xl">
                               Promedio: <b>{parseFloat(tl.promedio).toFixed(2)}</b>
                               <br />
                               ({tl.llamadas} llamadas)
-                            </>
+                            </div>
                           }
                     icon={Users}
                     color="bg-gradient-to-br from-purple-500 to-pink-500"
@@ -397,11 +397,11 @@ const Dashboard = ({ usuario }) => {
                     key={op.idUsuario}
                     title={`Promedio de llamadas de: ${op.nombre} ${op.apellido}`}
                     value={
-                            <>
+                            <div className="text-2xl">
                               Promedio: <b>{parseFloat(op.promedio).toFixed(2)}</b>
                               <br/>
                               ({op.llamadas} llamadas)
-                            </>
+                            </div>
                           }
                             // {`Promedio: ${(parseFloat(op.promedio)).toFixed(2)} (${op.llamadas} llamadas)`}
                     icon={User}
@@ -459,12 +459,11 @@ const Dashboard = ({ usuario }) => {
                   <StatCard
                     key={ev.idEvaluacion}
                     title={<>ID: <span className="font-extrabold">{ev.idEvaluacion}</span> | Fecha: {new Date(ev.fechaHora).toLocaleDateString()}</>}
-                    value={`Promedio: ${(
-                      (ev.puntuacionActitud +
-                        ev.puntuacionEstructura +
-                        ev.puntuacionProtocolos) /
-                      3
-                    ).toFixed(2)}`}
+                    value={
+                      <div className="text-2xl">
+                        Promedio: <b>{(((ev.puntuacionActitud + ev.puntuacionEstructura + ev.puntuacionProtocolos) / 3)).toFixed(2)}</b>
+                      </div>
+                    }
                     icon={Calendar}
                     color="bg-gradient-to-br from-indigo-500 to-blue-500"
                     onClick={() => handleDrillDown(ev.idEvaluacion, 'detalle')}
