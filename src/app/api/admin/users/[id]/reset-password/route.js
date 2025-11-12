@@ -4,6 +4,25 @@ import { getUsernameById } from '@/modulos/admin/dal/adminDAL';
 import pool from '@/lib/db';
 import { NextResponse } from 'next/server';
 
+function getClientIp(request) {
+  let ipOrigen = request.headers.get('x-forwarded-for') 
+              || request.headers.get('x-real-ip') 
+              || request.socket?.remoteAddress 
+              || 'N/A';
+  
+  // Normalizar IPv6 mapeado a IPv4 (::ffff:192.168.1.1 -> 192.168.1.1)
+  if (typeof ipOrigen === 'string' && ipOrigen.startsWith('::ffff:')) {
+    ipOrigen = ipOrigen.replace('::ffff:', '');
+  }
+  
+  // Si x-forwarded-for contiene múltiples IPs, tomar la primera
+  if (typeof ipOrigen === 'string' && ipOrigen.includes(',')) {
+    ipOrigen = ipOrigen.split(',')[0].trim();
+  }
+
+  return ipOrigen;
+}
+
 export async function POST(request, context) {
     // Await params per Next.js synchronous dynamic API requirement
     const params = await context.params;
@@ -19,7 +38,7 @@ export async function POST(request, context) {
                 try { adminInfo = JSON.parse(adminHeader); } catch (e) { adminInfo = null; }
             }
 
-            const ipOrigen = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'N/A';
+            const ipOrigen = getClientIp(request);
             
             // Obtener el nombre de usuario del usuario afectado
             const targetUsername = await getUsernameById(userId);

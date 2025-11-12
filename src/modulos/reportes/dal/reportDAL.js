@@ -15,6 +15,7 @@ export const obtenerEvaluacionesDB = async (filtros) => {
       ue.apellido AS apellidoEvaluado
     FROM Evaluacion e
     JOIN Usuario ue ON ue.idUsuario = e.idEvaluado
+    LEFT JOIN OperadorTeamLeader otl ON ue.idUsuario = otl.idUsuario
     WHERE 1 = 1
   `;
 
@@ -36,7 +37,7 @@ export const obtenerEvaluacionesDB = async (filtros) => {
   }
   
   if (filtros.rol === 'TeamLeader') {
-      query += ' AND ue.idTeamLeader = ?';
+      query += ' AND otl.idTeamLeader = ?';
       params.push(filtros.idUsuario);
   } else if (filtros.rol === 'Operador') {
       query += ' AND ue.idUsuario = ?';
@@ -54,12 +55,13 @@ export const obtenerOperadoresDB = async (filtros) => {
     SELECT DISTINCT ue.idUsuario, ue.nombre, ue.apellido
     FROM Evaluacion e
     JOIN Usuario ue ON ue.idUsuario = e.idEvaluado
+    LEFT JOIN OperadorTeamLeader otl ON ue.idUsuario = otl.idUsuario
     WHERE 1 = 1
   `;
   const params = [];
 
   if (filtros.rol === 'TeamLeader') {
-      query += ' AND ue.idTeamLeader = ?';
+      query += ' AND otl.idTeamLeader = ?';
       params.push(filtros.idUsuario);
   } else if (filtros.rol === 'Operador') {
       query += ' AND ue.idUsuario = ?';

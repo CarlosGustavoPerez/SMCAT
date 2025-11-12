@@ -1,4 +1,7 @@
-import pool from '@/lib/db'; 
+import pool from '@/lib/db';
+import { UmbralesBLL } from '@/modulos/umbrales/bll/UmbralesBLL';
+
+const umbralesBLL = new UmbralesBLL();
 
     export async function getOperadoresBajoRendimiento(fechaInicio, fechaFin, umbralCritico) {
         if (!fechaInicio || !fechaFin || umbralCritico === undefined || umbralCritico === null) {
@@ -89,18 +92,6 @@ import pool from '@/lib/db';
         return { affectedRows: result.affectedRows }; 
     }
     export async function getUmbralCritico() {
-    // Buscamos el rango_min del nivel 'yellow' (Amarillo/Riesgo), que es el límite superior de 'Crítico'.
-    const sql = `
-        SELECT 
-            rango_min 
-        FROM 
-            UmbralesDesempeno
-        WHERE 
-            nombre_nivel = 'Precaución'
-        LIMIT 1;
-    `;
-    const [rows] = await pool.query(sql);
-
-    // Devolvemos el valor encontrado o null si no hay configuración
-    return rows.length > 0 ? rows[0].rango_min : null; 
+    // Delegamos al UmbralesBLL para obtener el umbral de forma centralizada
+    return await umbralesBLL.obtenerUmbralCritico();
 }

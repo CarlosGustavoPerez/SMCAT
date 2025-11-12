@@ -7,7 +7,7 @@ import { PlanesMejoraBLL } from '@/modulos/planesMejora/bll/PlanesMejoraBLL';
 const planesService = new PlanesMejoraBLL();
 
 export async function GET(request) {
-    const authResult = requireRole(request, ['Supervisor', 'Admin', 'TeamLeader', 'Operador']); 
+    const authResult = requireRole(request, ['Supervisor', 'Admin', 'TeamLeader', 'Operador', 'Analista']); 
     if (authResult) return authResult; 
 
     try {

@@ -7,7 +7,7 @@ import { requireRole } from '@/modulos/authentication/be/authMiddleware';
 const planesService = new PlanesMejoraBLL();
 
 export async function GET(request) {
-    const authResult = requireRole(request, ['Supervisor', 'Admin']); 
+    const authResult = requireRole(request, ['Supervisor', 'Admin', 'Analista', 'TeamLeader']); 
     if (authResult) return authResult; 
 
     try {
