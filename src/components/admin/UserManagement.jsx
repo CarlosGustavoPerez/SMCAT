@@ -41,7 +41,6 @@ const UserManagement = () => {
             const usersWithGroupsPromises = usersData.map(async (user) => {
                 // getGroupsByUserId devuelve un array de objetos grupo: [{ idGrupo: 10, nombreGrupo: 'Grupo A' }, ...]
                 const userGroups = await getGroupsByUserId(user.idUsuario);
-                
                 // Adjuntar los nombres de los grupos como una string separada por comas
                 const groupNames = userGroups.map(g => g.nombreGrupo).join(', ');
                 return {
@@ -229,7 +228,7 @@ const UserManagement = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {users.map((user) => (
                             <tr key={user.idUsuario}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nombre} {user.apellido}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.idUsuario} - {user.nombre} {user.apellido}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.nombreUsuario}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.groupNames}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

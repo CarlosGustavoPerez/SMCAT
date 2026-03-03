@@ -1,5 +1,3 @@
-// src/modulos/auditoria/components/AuditoriaSesionesReport.js
-
 import React, { useState, useEffect,useCallback } from 'react';
 import { getAuditoriaSesiones, getFilterOptions } from '@/modulos/auditoria/services/auditoriaService';
 import { toast } from 'react-toastify';

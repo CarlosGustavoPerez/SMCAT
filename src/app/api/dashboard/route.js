@@ -1,3 +1,4 @@
+// src/app/api/dashboard/route.js
 import {
   getEvaluacionesByRoleBLL,
   getOperadoresByTeamLeaderBLL,

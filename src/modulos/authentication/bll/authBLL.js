@@ -34,9 +34,6 @@ export const loginUsuario = async (nombreUsuario, contrasena, dbClient) => {
     const vencimiento = verificarVencimientoClave(usuarioDB);
 
     if (vencimiento.claveVencida) {
-        // En lugar de devolver null (que se interpretaría como clave/usuario incorrecto),
-        // devolvemos un objeto específico que la API Route pueda interpretar
-        // para forzar el cambio de clave.
         return {
             error: true,
             errorCode: 'KEY_EXPIRED',

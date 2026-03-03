@@ -1,3 +1,4 @@
+// src/modulos/dashboard/dal/dashboardDAL.js
 import pool from '@/lib/db'; 
 export const getEvaluacionesByRole = async (filtros) => { 
     let query = ` 

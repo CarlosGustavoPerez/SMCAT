@@ -11,39 +11,8 @@ import {
   Users,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import StatCard from '@/components/StatCard';
 import { obtenerDashboard, actualizarEstadoEvaluacion } from '../modulos/dashboard/services/dashBoardService';
-
-const StatCard = ({ title, value, icon: Icon, color, onClick, description, statusColorClass, statusBadge }) => (
-  <div
-        className={`bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-6 flex flex-col justify-between cursor-pointer 
-                    transition-all duration-300 hover:scale-[1.02] hover:shadow-xl
-                    ${statusColorClass || 'border-l-4 border-gray-300'} // Borde lateral dinámico
-                    border-l-4 pl-8 // Aseguramos el padding y el grosor del borde
-                  `}
-        onClick={onClick}
-    >
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-gray-500 text-sm font-medium">{title}</p>
-        <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
-      </div>
-      <div className={`${color} p-3 rounded-xl shadow-md`}>
-        <Icon className="h-6 w-6 text-white" />
-      </div>
-    </div>
-    {description && (
-      <p className="text-sm text-gray-500 mt-2">{description}</p>
-    )}
-    {statusBadge && (
-        <span
-            className={`mt-2 px-3 py-1 rounded-full text-xs font-semibold self-start 
-                        ${statusBadge.class}`}
-        >
-            {statusBadge.text}
-        </span>
-    )}
-  </div>
-);
 
 const ScoreCard = ({ title, score }) => (
   <div className="flex items-center justify-between border-b pb-2 border-gray-200 last:border-b-0 last:pb-0">
@@ -69,7 +38,7 @@ const Dashboard = ({ usuario }) => {
     promedioHoy: 0,
     recientes: [],
     operadores: [],
-    teamLeaders: [], // Nuevo estado para los analistas
+    teamLeaders: [],
     llamadasPorOperador: [],
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -89,27 +58,20 @@ const Dashboard = ({ usuario }) => {
     if (!umbralesArray || umbralesArray.length === 0 || score === null || score === undefined) {
         return { color: 'gray', nivel: 'Sin Datos' };
     }
-    
     const numericScore = parseFloat(score);
-
-    // Buscar el umbral que corresponde
     const umbral = umbralesArray.find(u => {
         const min = parseFloat(u.rango_min);
-        
-        // Si el score es mayor o igual al mínimo de ese rango, pertenece a ese nivel
         return numericScore >= min;
     });
-
-    // Devolver el color de Tailwind mapeado en la BLL
     if (umbral) {
         const twColor = umbral.color === 'green' ? 'border-green-500' :
                         umbral.color === 'yellow' ? 'border-yellow-500' :
                         'border-red-500';
-        return { colorClass: twColor, nivel: umbral.nombre_nivel };
+        const colorName = umbral.color === 'green' ? 'green' :
+                          umbral.color === 'yellow' ? 'yellow' : 'red';
+        return { color: colorName, colorClass: twColor, nivel: umbral.nombre_nivel };
     }
-    
-    // Default
-    return { colorClass: 'border-gray-300', nivel: 'Fuera de Rango' };
+    return { color: 'gray', colorClass: 'border-gray-300', nivel: 'Fuera de Rango' };
   };
   useEffect(() => {
     const cargarVistaInicial = async () => {
@@ -126,7 +88,6 @@ const Dashboard = ({ usuario }) => {
           filtroInicial.idTeamLeader = usuario.idUsuario;
           initialView = 'operadores';
         }
-
         const data = await obtenerDashboard({
           grupos: usuario.grupos,
           idUsuario: usuario.idUsuario,
@@ -146,6 +107,7 @@ const Dashboard = ({ usuario }) => {
         }
         setViewLevel(initialView);
         setUmbrales(data.umbrales || []);
+        
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
         toast.error(error.message);
@@ -191,24 +153,19 @@ const Dashboard = ({ usuario }) => {
     let newViewLevel = targetView;
     let filtro = {};
     let data = null;
-
     if (targetView === 'operadores') {
-        // Lógica para Analistas
         if(esAnalista) {
             filtro = { idTeamLeader: id };
             setSelectedTeamLeader(stats.teamLeaders.find((tl) => tl.idUsuario === id));
         } 
-        // Lógica para Team Leaders
         else {
             filtro = { idTeamLeader: usuario.idUsuario };
         }
-        
         data = await obtenerDashboard({
             grupos: usuario.grupos,
             idUsuario: usuario.idUsuario,
             filtro: filtro,
         });
-        
         newStats = {
             ...stats,
             operadores: data.operadores || [],
@@ -217,7 +174,6 @@ const Dashboard = ({ usuario }) => {
     } 
     else if (targetView === 'llamadas') {
         filtro = { idOperador: id };
-
         data = await obtenerDashboard({
             grupos: usuario.grupos,
             idUsuario: usuario.idUsuario,
@@ -265,38 +221,38 @@ const Dashboard = ({ usuario }) => {
     }
   };
   const UmbralesLegend = ({ umbrales }) => {
-      const getColorClass = (color) => {
-          if (color === 'green') return 'bg-green-500';
-          if (color === 'yellow') return 'bg-yellow-500';
-          return 'bg-red-500';
-      };
-
-      if (!umbrales || umbrales.length === 0) {
-          return null;
-      }
-
-      return (
-        <div className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-4 mb-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-indigo-600" />
-                Referencia de Umbrales de Desempeño
-            </h3>
-            <div className="flex flex-wrap gap-4 md:gap-8">
-                {umbrales.map((u) => (
-                    <div key={u.nombre_nivel} className="flex items-center space-x-2">
-                        <span className={`h-4 w-4 rounded-full ${getColorClass(u.color)} shadow-sm`}></span>
-                        <span className="text-sm font-medium text-gray-600">
-                            {u.nombre_nivel}: 
-                            <span className="font-mono text-gray-700 ml-1">
-                                {u.rango_max === null ? 'Máx' : u.rango_max} -  {u.rango_min}
-                            </span>
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </div>
-      );
+    const getColorClass = (color) => {
+        if (color === 'green') return 'bg-green-500';
+        if (color === 'yellow') return 'bg-yellow-500';
+        return 'bg-red-500';
     };
+
+    if (!umbrales || umbrales.length === 0) {
+        return null;
+    }
+
+    return (
+      <div className="bg-white rounded-2xl shadow-lg ring-1 ring-gray-200 p-4 mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <BarChart3 className="w-5 h-5 mr-2 text-indigo-600" />
+              Referencia de Umbrales de Desempeño
+          </h3>
+          <div className="flex flex-wrap gap-4 md:gap-8">
+              {umbrales.map((u) => (
+                  <div key={u.nombre_nivel} className="flex items-center space-x-2">
+                      <span className={`h-4 w-4 rounded-full ${getColorClass(u.color)} shadow-sm`}></span>
+                      <span className="text-sm font-medium text-gray-600">
+                          {u.nombre_nivel}: 
+                          <span className="font-mono text-gray-700 ml-1">
+                              {u.rango_max === null ? 'Máx' : u.rango_max} -  {u.rango_min}
+                          </span>
+                      </span>
+                  </div>
+              ))}
+          </div>
+      </div>
+    );
+  };
   const renderContent = () => {
     if (isLoading || viewLevel === null) {
       return (
@@ -305,7 +261,6 @@ const Dashboard = ({ usuario }) => {
         </div>
       );
     }
-
     switch (viewLevel) {
       case 'general':
         const generalScore = parseFloat(stats.promedioHoy);
@@ -323,7 +278,6 @@ const Dashboard = ({ usuario }) => {
             />
           </div>
         );
-
       case 'teamleaders':
         return (
           <div className="animate-fade-in">
@@ -345,7 +299,7 @@ const Dashboard = ({ usuario }) => {
                             </div>
                           }
                     icon={Users}
-                    color="bg-gradient-to-br from-purple-500 to-pink-500"
+                    color={tlUmbral.color === 'green' ? 'bg-green-300' : tlUmbral.color === 'yellow' ? 'bg-yellow-300' : 'bg-red-300'}
                     onClick={() => handleDrillDown(tl.idUsuario, 'operadores')}
                     description={`Nivel: ${tlUmbral.nivel}`}
                     statusColorClass={tlUmbral.colorClass}
@@ -403,7 +357,6 @@ const Dashboard = ({ usuario }) => {
                               ({op.llamadas} llamadas)
                             </div>
                           }
-                            // {`Promedio: ${(parseFloat(op.promedio)).toFixed(2)} (${op.llamadas} llamadas)`}
                     icon={User}
                     color="bg-gradient-to-br from-sky-500 to-cyan-500"
                     onClick={() => handleDrillDown(op.idUsuario, 'llamadas')}

@@ -1,13 +1,12 @@
-// Asume que tienes una función para obtener headers de autenticación
-const getAuthHeaders = () => ({ 'Content-Type': 'application/json' /* , 'Authorization': ... */ }); 
+// src/modulos/umbrales/services/UmbralesService.js
+const getAuthHeaders = () => ({ 'Content-Type': 'application/json'}); 
 
-export async function obtenerRangosDePrecaucion() { // Renombrada para mayor claridad
+export async function obtenerRangosDePrecaucion() { 
     const res = await fetch('/api/configuracion/umbrales-abm');
     const data = await res.json();
     if (!res.ok || !data.success) {
         throw new Error(data.error || 'Error al obtener rangos de precaución.');
     }
-    // Retorna { precaucion_min, precaucion_max }
     return data;
 }
 

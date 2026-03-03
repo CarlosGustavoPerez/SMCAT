@@ -39,7 +39,7 @@ export const deleteUser = async (id) => {
         method: 'DELETE',
     });
     if (!response.ok) {
-        throw new Error('Error al eliminar el usuario.');
+        throw new Error('Error al eliminar el usuario. Chequear que no tenga evaluaciones asociadas.');
     }
 };
 

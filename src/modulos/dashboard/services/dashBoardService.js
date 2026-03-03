@@ -1,3 +1,4 @@
+// src/modulos/dashboard/services/dashBoardService.js
 export async function obtenerDashboard({ grupos, idUsuario, filtro }) {
   const res = await fetch('/api/dashboard', {
     method: 'POST',
@@ -19,7 +20,6 @@ export async function obtenerDashboard({ grupos, idUsuario, filtro }) {
     umbrales: data.umbrales,
   };
 }
-
 export async function actualizarEstadoEvaluacion(idEvaluacion, nuevoEstado, idUsuarioAccion) {
   const res = await fetch('/api/evaluacion/estado', {
     method: 'POST',

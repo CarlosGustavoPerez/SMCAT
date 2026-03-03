@@ -1,3 +1,4 @@
+// src/app/api/configuracion/umbrales-abm/route.js
 import { NextResponse } from 'next/server';
 import { UmbralesBLL } from '@/modulos/umbrales/bll/UmbralesBLL';
 

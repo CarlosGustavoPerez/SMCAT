@@ -1,3 +1,5 @@
+// src/lib/utils/sessionStorage.js
+
 const USER_KEY = 'usuarioActual';
 
 export const getSessionUser = () => {

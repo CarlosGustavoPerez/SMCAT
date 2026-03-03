@@ -8,14 +8,13 @@ import { obtenerOperadoresElegibles, crearPlanMejora,obtenerTodosLosPlanes,obten
 import { User, Calendar, Save, List, Clock, CheckCircle } from 'lucide-react';
 
 const PlanMejora = ({ usuario }) => {
-    // El idUsuario actual será el supervisor_id en la base de datos
     const supervisorId = usuario?.idUsuario; 
     const [mesEvaluadoInfo, setMesEvaluadoInfo] = useState(null);
     const [operadoresElegibles, setOperadoresElegibles] = useState([]);
     const [isLoadingOperadores, setIsLoadingOperadores] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [planesActivos, setPlanesActivos] = useState([]); // <-- AGREGAR ESTADO PARA LOS PLANES
-    const [isPlanesLoading, setIsPlanesLoading] = useState(true); // <-- AGREGAR ESTADO DE CARGA PARA PLANES
+    const [planesActivos, setPlanesActivos] = useState([]);
+    const [isPlanesLoading, setIsPlanesLoading] = useState(true);
     const [umbralCritico, setUmbralCritico] = useState(null);
     const [planData, setPlanData] = useState({
         operador_id: '',
@@ -31,7 +30,7 @@ const PlanMejora = ({ usuario }) => {
                 setUmbralCritico(umbral); 
             } catch (error) {
                  toast.error('Error al cargar la configuración de umbrales.');
-                 setUmbralCritico(3.0); // Valor de fallback
+                 setUmbralCritico(3.0);
             }
         };
         fetchUmbral();
@@ -76,7 +75,7 @@ const PlanMejora = ({ usuario }) => {
         cargarPlanesActivos();
     }, []);
 
-    if (isLoadingOperadores) { // Cambiado de 'isLoading' a 'isLoadingOperadores'
+    if (isLoadingOperadores) {
         return <div className="p-6 text-center text-gray-500">Cargando operadores elegibles...</div>;
     }
     const handleChange = (e) => {
@@ -95,20 +94,16 @@ const PlanMejora = ({ usuario }) => {
         const dataToSend = {
             ...planData,
             supervisor_id: supervisorId,
-            // Aseguramos que operador_id sea un número, ya que el select devuelve un string
             operador_id: parseInt(planData.operador_id), 
         };
 
         try {
             await crearPlanMejora(dataToSend);
             toast.success('Plan de Mejora creado con éxito. El Team Leader ha sido notificado.');
-            
-            // Limpiar formulario y quitar el operador de la lista de elegibles
             setPlanData({ operador_id: '', objetivos: '', acciones_correctivas: '', fecha_finalizacion: '' });
             setOperadoresElegibles(op => op.filter(o => o.idUsuario !== dataToSend.operador_id));
 
         } catch (error) {
-            // Maneja el error que viene de la API Route (ej. "Error al guardar...")
             toast.error(error.message || 'Error desconocido al crear el plan.');
         } finally {
             setIsSubmitting(false);
@@ -118,12 +113,9 @@ const PlanMejora = ({ usuario }) => {
     if (isLoadingOperadores) {
         return <div className="p-6 text-center text-gray-500">Cargando operadores elegibles...</div>;
     }
-
-    // Aquí se renderizaría la otra vista (Tabla de planes activos) si se cambia la vista interna
     const renderPlanCreationForm = () => (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
                 {/* Selector de Operador */}
                 <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -148,7 +140,6 @@ const PlanMejora = ({ usuario }) => {
                         )}
                     </select>
                 </div>
-
                 {/* Fecha de Finalización (Criterio de Aceptación) */}
                 <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -165,7 +156,6 @@ const PlanMejora = ({ usuario }) => {
                     />
                 </div>
             </div>
-
             {/* Objetivos */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -181,7 +171,6 @@ const PlanMejora = ({ usuario }) => {
                     className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                 />
             </div>
-
             {/* Acciones Correctivas */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -197,7 +186,6 @@ const PlanMejora = ({ usuario }) => {
                     className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                 />
             </div>
-
             <button
                 type="submit"
                 disabled={isSubmitting || operadoresElegibles.length === 0}
@@ -212,16 +200,13 @@ const PlanMejora = ({ usuario }) => {
             </button>
         </form>
     );
-    // Componente auxiliar para formatear la tabla de planes activos
     const PlanesActivosTable = ({ planes, isLoading }) => {
         if (isLoading) {
             return <div className="p-4 text-center text-gray-500">Cargando planes activos...</div>;
         }
-
         if (planes.length === 0) {
             return <div className="p-4 text-center text-gray-500 border border-gray-200 rounded-lg">No hay planes de mejora registrados.</div>;
         }
-
         const getStatusStyle = (estado) => {
             switch (estado) {
                 case 'Activo':
@@ -232,13 +217,10 @@ const PlanMejora = ({ usuario }) => {
                     return 'bg-gray-100 text-gray-800';
             }
         };
-        
         const formatDate = (dateString) => {
             if (!dateString) return 'N/A';
-            // Asumiendo formato YYYY-MM-DD
             return new Date(dateString).toLocaleDateString('es-AR');
         };
-
         return (
             <div className="overflow-x-auto mt-6 border rounded-lg shadow-sm">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -289,14 +271,11 @@ const PlanMejora = ({ usuario }) => {
         <div className="p-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
                 <span>Gestión de Planes de Mejora </span>
-                
             </h1>
-            
             <div className="bg-white p-6 rounded-lg shadow-xl">
                 <div className="mb-4 flex justify-between items-center">
                     <h2 className="text-xl font-semibold text-blue-600 flex items-center">
                         <List className="h-5 w-5 mr-2" />
-                        
                         {mesEvaluadoInfo && (
                     <span className="text-lg font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full shadow-md">
                         Mes Evaluado: {mesEvaluadoInfo.mes}/{mesEvaluadoInfo.anio}

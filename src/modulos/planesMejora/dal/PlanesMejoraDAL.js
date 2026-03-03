@@ -1,3 +1,4 @@
+// src/modulos/planesMejora/dal/PlanesMejoraDAL.js
 import pool from '@/lib/db';
 import { UmbralesBLL } from '@/modulos/umbrales/bll/UmbralesBLL';
 
@@ -92,6 +93,5 @@ const umbralesBLL = new UmbralesBLL();
         return { affectedRows: result.affectedRows }; 
     }
     export async function getUmbralCritico() {
-    // Delegamos al UmbralesBLL para obtener el umbral de forma centralizada
     return await umbralesBLL.obtenerUmbralCritico();
 }

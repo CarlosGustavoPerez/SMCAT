@@ -4,36 +4,20 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Settings, Save } from 'lucide-react';
-
-// NECESITARÁS crear estas nuevas funciones en el service layer
 import { obtenerRangosDePrecaucion, guardarUmbrales } from '@/modulos/umbrales/services/UmbralesService';
 
-// src/components/UmbralesABM.jsx
-
-// ... (imports y hooks useState/useEffect)
-
 const UmbralesABM = () => {
-    // ⚠️ Ahora necesitamos dos estados, uno para el inicio y otro para el fin del rango de Precaución
     const [precaucionMin, setPrecaucionMin] = useState(null); 
     const [precaucionMax, setPrecaucionMax] = useState(null); 
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // ... (useEffect para fetchUmbrales) - Necesitarás ajustar esta función en el Service/BLL
-    // para que devuelva los 4 valores (rango_min y rango_max de Precaución).
-
-    // Función que simula la carga inicial de datos
-    // src/components/UmbralesABM.jsx
-
     useEffect(() => {
         const fetchUmbrales = async () => {
             setIsLoading(true);
             try {
                 const data = await obtenerRangosDePrecaucion(); 
-                
-                // SOLUCIÓN: Usar Number() o parseFloat() aquí para asegurar el tipo.
-                setPrecaucionMin(Number(data.precaucion_min)); // Conversión a Number
-                setPrecaucionMax(Number(data.precaucion_max)); // Conversión a Number
+                setPrecaucionMin(Number(data.precaucion_min));
+                setPrecaucionMax(Number(data.precaucion_max));
                 
             } catch (error) {
                 toast.error('Error al cargar la configuración: ' + error.message);
@@ -46,20 +30,15 @@ const UmbralesABM = () => {
         fetchUmbrales();
     }, []);
 
-    // 💡 Cálculos de límites dependientes (se actualizan al escribir en los inputs)
     const criticoMax = precaucionMin !== null 
-    ? (Number(precaucionMin) - 0.01).toFixed(2) // 👈 Aseguramos que precaucionMin sea un número
+    ? (Number(precaucionMin) - 0.01).toFixed(2)
     : 'N/A';
 
 const optimoMin = precaucionMax !== null 
-    ? (Number(precaucionMax) + 0.01).toFixed(2) // 👈 Aseguramos que precaucionMax sea un número
+    ? (Number(precaucionMax) + 0.01).toFixed(2)
     : 'N/A';
-    
-    // Función de validación y envío
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // 1. Validaciones
         if (precaucionMin === null || precaucionMax === null || isNaN(precaucionMin) || isNaN(precaucionMax)) {
             return toast.warn('Por favor, ingrese valores válidos para el rango de Precaución.');
         }
@@ -71,8 +50,6 @@ const optimoMin = precaucionMax !== null
         }
 
         setIsSubmitting(true);
-        
-        // 2. Data a enviar: solo los dos valores editables (el DAL hace el resto)
         const umbralesAEnviar = {
             precaucion_min: parseFloat(precaucionMin.toFixed(2)),
             precaucion_max: parseFloat(precaucionMax.toFixed(2)),
@@ -105,7 +82,6 @@ const optimoMin = precaucionMax !== null
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* INPUT 1: Umbral Crítico (rango_min de Precaución) */}
                     <div className='border-l-4 border-yellow-500 pl-4'>
                         <label htmlFor="precaucionMin" className="block text-sm font-medium text-red-700 mb-1">
                             1. Umbral Crítico (Rango Mínimo de Precaución)
@@ -124,8 +100,6 @@ const optimoMin = precaucionMax !== null
                         />
                         <p className="mt-1 text-xs text-gray-500">Valor mínimo para no ser considerado Crítico. Si es 2.50, Crítico va hasta 2.49.</p>
                     </div>
-
-                    {/* INPUT 2: Umbral de Óptimo (rango_max de Precaución) */}
                     <div className='border-l-4 border-green-500 pl-4'>
                         <label htmlFor="precaucionMax" className="block text-sm font-medium text-green-700 mb-1">
                             2. Umbral Óptimo (Rango Máximo de Precaución)

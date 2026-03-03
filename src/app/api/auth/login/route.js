@@ -1,4 +1,5 @@
-import { loginUsuario, registrarEventoSesion } from '@/modulos/authentication/bll/authBLL'; // <-- Importamos ambas
+// src/app/api/auth/login/route.js
+import { loginUsuario, registrarEventoSesion } from '@/modulos/authentication/bll/authBLL';
 import pool from '@/lib/db';
 import { NextResponse } from 'next/server';
 
@@ -7,17 +8,12 @@ function getClientIp(request) {
               || request.headers.get('x-real-ip') 
               || request.socket?.remoteAddress 
               || 'N/A';
-  
-  // Normalizar IPv6 mapeado a IPv4 (::ffff:192.168.1.1 -> 192.168.1.1)
   if (typeof ipOrigen === 'string' && ipOrigen.startsWith('::ffff:')) {
     ipOrigen = ipOrigen.replace('::ffff:', '');
   }
-  
-  // Si x-forwarded-for contiene múltiples IPs, tomar la primera
   if (typeof ipOrigen === 'string' && ipOrigen.includes(',')) {
     ipOrigen = ipOrigen.split(',')[0].trim();
   }
-
   return { ipOrigen };
 }
 
@@ -36,9 +32,7 @@ export async function POST(request) {
 
             return NextResponse.json({ success: false, error: 'Faltan datos' }, { status: 400 });
         }
-
-        const result = await loginUsuario (nombreUsuario, contrasena, pool); // Capturamos el resultado (usuario o error)
-
+        const result = await loginUsuario (nombreUsuario, contrasena, pool);
         if (result && result.error === true && result.errorCode === 'KEY_EXPIRED') {
             const usuario = result; 
             await registrarEventoSesion({ 
@@ -59,7 +53,6 @@ export async function POST(request) {
         }
 
         if (!result) {
-        // REGISTRO DE LOGIN FALLIDO POR CREDENCIALES
             await registrarEventoSesion({ 
                 nombreUsuario, 
                 tipoEvento: 'LOGIN_FALLIDO', 
@@ -71,7 +64,6 @@ export async function POST(request) {
         }
 
         const usuario = result; 
-        // REGISTRO DE LOGIN EXITOSO
         await registrarEventoSesion({ 
             idUsuario: usuario.idUsuario, 
             nombreUsuario: usuario.nombreUsuario, 
@@ -83,8 +75,6 @@ export async function POST(request) {
     
     } catch (error) {
         console.error('Error en login endpoint:', error);
-
-        // REGISTRO DE FALLO INTERNO DEL SERVIDOR
         await registrarEventoSesion({ 
             nombreUsuario: nombreUsuario || 'N/A', 
             tipoEvento: 'LOGIN_FALLIDO', 

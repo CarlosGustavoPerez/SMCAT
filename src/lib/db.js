@@ -1,10 +1,26 @@
 import mysql from 'mysql2/promise';
-const pool = mysql.createPool({
+
+// Configuración de la base de datos
+const dbConfig = {
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-});
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
+
+let pool;
+
+if (process.env.NODE_ENV === 'production') {
+  pool = mysql.createPool(dbConfig);
+} else {
+  if (!global.dbPool) {
+    global.dbPool = mysql.createPool(dbConfig);
+  }
+  pool = global.dbPool;
+}
 
 export default pool;

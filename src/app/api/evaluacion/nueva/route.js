@@ -1,5 +1,5 @@
 import { guardarNuevaEvaluacion } from '@/modulos/evaluaciones/bll/evaluacionBLL';
-import { NextResponse } from 'next/server'; // Asegúrate de usar NextResponse si estás en Next.js App Router
+import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   try {

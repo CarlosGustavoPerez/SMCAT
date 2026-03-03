@@ -1,3 +1,5 @@
+// src/app/api/planes-mejora/todos/route.js
+
 import { NextResponse } from 'next/server';
 import { PlanesMejoraBLL } from '@/modulos/planesMejora/bll/PlanesMejoraBLL';
 import { requireRole } from '@/modulos/authentication/be/authMiddleware';

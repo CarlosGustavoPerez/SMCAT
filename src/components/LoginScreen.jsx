@@ -21,29 +21,26 @@ const LoginScreen = ({ onLogin }) => {
     try {
       const res = await loginUsuario(credentials.username, credentials.password);
 
-      if (!res) {
-        toast.error('Error al iniciar sesión. Intente nuevamente.');
-        setCredentials({ username: '', password: '' });
-        setLoading(false);
-        return;
-      }
+      if (!res.success) {
 
-      // Caso: clave vencida -> mostrar modal para cambiar contraseña
-      if (res.error && res.errorCode === 'KEY_EXPIRED') {
-        setChangeUser({ idUsuario: res.idUsuario, nombreUsuario: res.nombreUsuario });
-        setShowChangeModal(true);
+        if (res.errorCode === 'KEY_EXPIRED') {
+          setChangeUser({
+            idUsuario: res.idUsuario,
+            nombreUsuario: res.nombreUsuario
+          });
+          setShowChangeModal(true);
+          setLoading(false);
+          return;
+        }
+
+        toast.error(res.error || 'Credenciales inválidas');
         setLoading(false);
         return;
       }
 
       if (res.success && res.usuario) {
         onLogin(res.usuario);
-        // Redirigir al dashboard por defecto
-        router.push('/'); // app root shows dashboard by default; or '/dashboard' if route exists
-      } else {
-        toast.error('Credenciales inválidas');
-        setCredentials({ username: '', password: '' });
-        setLoading(false);
+        router.push('/');
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
@@ -147,7 +144,7 @@ const LoginScreen = ({ onLogin }) => {
         />
       )}
     </div>
-    
+
   );
 };
 
