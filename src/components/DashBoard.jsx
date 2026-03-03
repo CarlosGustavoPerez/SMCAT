@@ -67,8 +67,8 @@ const Dashboard = ({ usuario }) => {
         const twColor = umbral.color === 'green' ? 'border-green-500' :
                         umbral.color === 'yellow' ? 'border-yellow-500' :
                         'border-red-500';
-        const colorName = umbral.color === 'green' ? 'green' :
-                          umbral.color === 'yellow' ? 'yellow' : 'red';
+        const colorName = umbral.color === 'green' ? 'bg-green-300' :
+                          umbral.color === 'yellow' ? 'bg-yellow-300' : 'bg-red-300';
         return { color: colorName, colorClass: twColor, nivel: umbral.nombre_nivel };
     }
     return { color: 'gray', colorClass: 'border-gray-300', nivel: 'Fuera de Rango' };
@@ -226,6 +226,7 @@ const Dashboard = ({ usuario }) => {
         if (color === 'yellow') return 'bg-yellow-500';
         return 'bg-red-500';
     };
+    console.log('Umbrales recibidos en leyenda:', umbrales);
 
     if (!umbrales || umbrales.length === 0) {
         return null;
@@ -299,7 +300,7 @@ const Dashboard = ({ usuario }) => {
                             </div>
                           }
                     icon={Users}
-                    color={tlUmbral.color === 'green' ? 'bg-green-300' : tlUmbral.color === 'yellow' ? 'bg-yellow-300' : 'bg-red-300'}
+                    color={tlUmbral.color}
                     onClick={() => handleDrillDown(tl.idUsuario, 'operadores')}
                     description={`Nivel: ${tlUmbral.nivel}`}
                     statusColorClass={tlUmbral.colorClass}

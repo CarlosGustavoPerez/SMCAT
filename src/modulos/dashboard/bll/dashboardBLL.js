@@ -47,3 +47,33 @@ export const getUmbralesBLL = async () => {
                'red'
     }));
 };
+
+/**
+ * Obtiene los datos de desempeño según el rol del usuario.
+ * - Analista sin TL seleccionado: devuelve lista de TeamLeaders con promedios.
+ * - Analista con TL seleccionado o TeamLeader: devuelve operadores del equipo.
+ * En ambos casos incluye los umbrales con su color resuelto.
+ */
+export const getDesempenoBLL = async ({ grupos, idUsuario, filtro }) => {
+    const esAnalista = grupos.some(g => g.nombreGrupo === 'Analista');
+    const esTeamLeader = grupos.some(g => g.nombreGrupo === 'TeamLeader');
+
+    const umbrales = await getUmbralesBLL();
+
+    if (esAnalista && !filtro?.idTeamLeader) {
+        const teamLeaders = await getOperadoresAgrupadosPorTeamLeader();
+        return { teamLeaders, operadores: [], umbrales };
+    }
+
+    const idTL = filtro?.idTeamLeader || (esTeamLeader ? idUsuario : null);
+    if (!idTL) throw new Error('Filtro inválido.');
+
+    const operadoresRaw = await getOperadoresDeTeamLeader(idTL);
+    const operadores = operadoresRaw.map(op => ({
+        ...op,
+        promedio: parseFloat(op.promedio) || 0,
+        llamadas: parseInt(op.llamadas) || 0,
+    }));
+
+    return { teamLeaders: [], operadores, umbrales };
+};
