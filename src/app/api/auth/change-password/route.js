@@ -5,16 +5,10 @@ import { updatePassword } from '@/modulos/admin/dal/adminDAL';
 
 export async function POST(request) {
     try {
-        console.log('Received change-password request');
-
         const { idUsuario, oldPassword, newPassword } = await request.json();
-        console.log('Parsed request body:', { idUsuario, oldPassword, newPassword });
         if (!idUsuario || !newPassword) {
             return NextResponse.json({ message: 'Faltan datos' }, { status: 400 });
         }
-
-        // Obtener usuario por id no existe función directa, pero podemos buscar por username si es necesario.
-        // Para validar la contraseña actual necesitamos el hash. Vamos a consultar la tabla Usuario por id.
     const query = 'SELECT idUsuario, nombreUsuario, contrasena FROM Usuario WHERE idUsuario = ?';
     const [rows] = await pool.query(query, [idUsuario]);
 
@@ -24,7 +18,6 @@ export async function POST(request) {
 
         const usuarioDB = rows[0];
 
-        // Si se envió oldPassword, verificarla
         if (oldPassword) {
             const isMatch = await bcrypt.compare(oldPassword, usuarioDB.contrasena);
             if (!isMatch) {
@@ -32,7 +25,6 @@ export async function POST(request) {
             }
         }
 
-        // Hash y actualizar contraseña
         const salt = await bcrypt.genSalt(12);
         const hashed = await bcrypt.hash(newPassword, salt);
         const result = await updatePassword(idUsuario, hashed);

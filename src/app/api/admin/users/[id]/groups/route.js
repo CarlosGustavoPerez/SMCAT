@@ -1,3 +1,4 @@
+// src/app/api/admin/users/[id]/groups/route.js
 import { NextResponse } from 'next/server';
 import {
     obtenerGruposDeUsuario,
@@ -30,9 +31,8 @@ export async function GET(request, context) {
 
 export async function POST(request, context) {
     try {
-        const { id } = context.params;
+        const { id } = await context.params;
         const { idGrupo } = await request.json();
-        console.log(`function POST Asignando grupo ID ${idGrupo} al usuario ID ${id}`);
         if (!id) {
             return NextResponse.json({ error: 'ID de usuario no proporcionado en la URL.' }, { status: 400 });
         }
@@ -50,7 +50,7 @@ export async function POST(request, context) {
 
 export async function DELETE(request, context) {
     try {
-        const { id } = context.params;
+        const { id } = await context.params;
         const { idGrupo } = await request.json();
 
         if (!id || !idGrupo) {

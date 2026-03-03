@@ -100,7 +100,6 @@ const aplicarFiltros = async () => {
         try {
             // ✅ CORREGIDO: Llamar a la función del servicio con los filtros
             const evaluacionesFiltradas = await obtenerReportes({ ...filters, grupos: usuario.grupos, idUsuario: usuario.idUsuario });
-            console.log('Evaluaciones filtradas:', evaluacionesFiltradas.length);
             setReportData(evaluacionesFiltradas);
             setChartData(calcularPromediosPorOperador(evaluacionesFiltradas));
         } catch (err) {

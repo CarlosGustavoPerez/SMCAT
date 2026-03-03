@@ -1,4 +1,4 @@
-
+// src/modulos/admin/services/adminService.js
 export const getUsers = async () => {
     const response = await fetch('/api/admin/users');
     if (!response.ok) {
@@ -122,7 +122,6 @@ export const getGroupsByUserId = async (idUsuario) => {
     try {
         const response = await fetch(`/api/admin/users/${idUsuario}/groups`);
         if (response.status === 404) {
-            // No se encontraron grupos, retornamos un array vacío sin lanzar un error.
             return [];
         }
 

@@ -1,3 +1,4 @@
+// src/components/admin/UserManagement.jsx
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit, Trash, RotateCcw } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -37,19 +38,14 @@ const UserManagement = () => {
             const teamLeadersData = await getTeamLeaders();
             setGroups(groupsData);
             setTeamLeaders(teamLeadersData);
-            // 1. Obtener los IDs de los grupos para todos los usuarios en paralelo
             const usersWithGroupsPromises = usersData.map(async (user) => {
-                // getGroupsByUserId devuelve un array de objetos grupo: [{ idGrupo: 10, nombreGrupo: 'Grupo A' }, ...]
                 const userGroups = await getGroupsByUserId(user.idUsuario);
-                // Adjuntar los nombres de los grupos como una string separada por comas
                 const groupNames = userGroups.map(g => g.nombreGrupo).join(', ');
                 return {
                     ...user,
-                    groupNames: groupNames // Nueva propiedad para mostrar en la grilla
+                    groupNames: groupNames
                 };
             });
-
-            // 2. Esperar a que todas las promesas se resuelvan
             const usersWithGroups = await Promise.all(usersWithGroupsPromises);
             setUsers(usersWithGroups);
         } catch (error) {
@@ -336,7 +332,7 @@ const UserManagement = () => {
                             ))}
                         </div>
                         <div className="flex justify-end mt-6">
-                            <button onClick={() => setIsGroupModalOpen(false)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">
+                            <button onClick={() => { setIsGroupModalOpen(false); fetchData(); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">
                                 Cerrar
                             </button>
                         </div>

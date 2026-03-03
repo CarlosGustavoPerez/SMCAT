@@ -288,7 +288,6 @@ const DesempenoUmbrales = ({ usuario }) => {
                             </div>
                         ) : teamLeaders.map(tl => {
                             const info = getUmbralInfo(tl.promedio, umbrales);
-                            console.log(info)
                             return (
                                 <StatCard
                                     key={tl.idUsuario}

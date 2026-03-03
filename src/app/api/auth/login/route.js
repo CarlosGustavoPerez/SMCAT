@@ -20,7 +20,6 @@ function getClientIp(request) {
 export async function POST(request) {
     const { nombreUsuario, contrasena } = await request.json();
     const { ipOrigen} = getClientIp(request); 
-    console.log('IP Origen del cliente:', ipOrigen);
     try {
         if (!nombreUsuario || !contrasena) {
             await registrarEventoSesion({ 

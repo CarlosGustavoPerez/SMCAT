@@ -226,7 +226,6 @@ const Dashboard = ({ usuario }) => {
         if (color === 'yellow') return 'bg-yellow-500';
         return 'bg-red-500';
     };
-    console.log('Umbrales recibidos en leyenda:', umbrales);
 
     if (!umbrales || umbrales.length === 0) {
         return null;

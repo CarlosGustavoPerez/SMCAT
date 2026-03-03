@@ -1,3 +1,4 @@
+//  src/modulos/admin/dal/adminDAL.js
 import pool from '@/lib/db';
 
 export const obtenerUsuariosDB = async () => {
